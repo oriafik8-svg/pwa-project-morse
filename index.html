@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
-  }
-</script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MorseWave</title>
@@ -553,7 +546,35 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
 @media(max-width:640px){.home-nav-links,.nav-cta{display:none;}.pstats{grid-template-columns:1fr 1fr;}.xgrid{--cell:42px;gap:3px;}.grid-wrap{padding:1rem;}}
 @media(max-width:460px){.wrow{grid-template-columns:repeat(5,56px);}.kb-key{height:50px;}}
 @media(max-width:360px){.wrow{grid-template-columns:repeat(5,50px);}.xgrid{--cell:36px;gap:2px;}}
+
+/* ── Language Picker ── */
+.lang-btn{position:relative;display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.85rem;background:rgba(255,255,255,0.04);border:1px solid var(--line2);border-radius:999px;color:var(--text2);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
+.lang-btn:hover{color:var(--text);border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.06);}
+.lang-btn.open{color:var(--cyan);border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.08);}
+.lang-btn svg{width:12px;height:12px;transition:transform 0.2s;flex-shrink:0;}
+.lang-btn.open svg{transform:rotate(180deg);}
+.lang-flag{font-size:1rem;line-height:1;}
+.lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:280px;background:var(--bg2);border:1px solid var(--line2);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04);z-index:200;overflow:hidden;animation:fadeDown 0.2s ease both;}
+.lang-search-wrap{padding:0.75rem;border-bottom:1px solid var(--line);}
+.lang-search{width:100%;background:rgba(0,0,0,0.3);border:1px solid var(--line2);border-radius:10px;padding:0.55rem 0.85rem;color:var(--text);font-size:0.82rem;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.lang-search:focus{border-color:rgba(0,212,255,0.4);}
+.lang-search::placeholder{color:var(--text3);}
+.lang-list{max-height:280px;overflow-y:auto;padding:0.4rem;}
+.lang-list::-webkit-scrollbar{width:4px;}
+.lang-list::-webkit-scrollbar-track{background:transparent;}
+.lang-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:99px;}
+.lang-item{display:flex;align-items:center;gap:0.65rem;padding:0.6rem 0.75rem;border-radius:10px;cursor:pointer;transition:background 0.15s;border:1px solid transparent;}
+.lang-item:hover{background:rgba(255,255,255,0.04);}
+.lang-item.active{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.2);}
+.lang-item-flag{font-size:1.15rem;width:24px;text-align:center;flex-shrink:0;}
+.lang-item-name{font-size:0.84rem;font-weight:600;color:var(--text);flex:1;}
+.lang-item-native{font-size:0.75rem;color:var(--text2);}
+.lang-item.active .lang-item-name{color:var(--cyan);}
+.lang-item.hidden{display:none;}
+.lang-section-label{font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);font-weight:700;padding:0.5rem 0.75rem 0.25rem;}
 </style>
+<link rel="manifest" href="manifest.json">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js');}</script>
 </head>
 <body>
 <div class="bg-grid"></div>
@@ -571,12 +592,12 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
 <div id="page-home" class="page active">
   <section class="hero">
     <canvas class="hero-canvas" id="heroCanvas"></canvas>
-    <div class="hero-badge"><span class="badge-dot"></span>Interactive Morse Code Learning</div>
-    <h1>Learn Morse Code<br><span>Like a Pro</span></h1>
-    <p>Master the timeless art of Morse code with interactive lessons, real-time practice, and daily challenges.</p>
+    <div class="hero-badge"><span class="badge-dot"></span><span data-i18n="appTagline">Interactive Morse Code Learning</span></div>
+    <h1><span data-i18n="hero_title">Learn Morse Code</span><br><span data-i18n="hero_title2">Like a Pro</span></h1>
+    <p data-i18n="hero_sub">Master the timeless art of Morse code with interactive lessons, real-time practice, and daily challenges.</p>
     <div class="hero-buttons">
-      <button class="btn-hero-primary" onclick="navigate('learn')">Start Learning →</button>
-      <button class="btn-hero-secondary" onclick="navigate('practice')">Try Practice</button>
+      <button class="btn-hero-primary" onclick="navigate('learn')" data-i18n="btn_start">Start Learning →</button>
+      <button class="btn-hero-secondary" onclick="navigate('practice')" data-i18n="btn_practice">Try Practice</button>
     </div>
     <div class="morse-signal">
       <div class="sig-item sig-dot" style="animation-delay:0s"></div>
@@ -586,51 +607,51 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
       <div class="sig-item sig-dash" style="animation-delay:0.6s"></div>
     </div>
     <div class="stats-row">
-      <div class="stat-item"><div class="stat-number">26</div><div class="stat-label">Letters & digits</div></div>
-      <div class="stat-item"><div class="stat-number">4</div><div class="stat-label">Games & modes</div></div>
-      <div class="stat-item"><div class="stat-number">8</div><div class="stat-label">Lessons</div></div>
-      <div class="stat-item"><div class="stat-number">∞</div><div class="stat-label">Practice rounds</div></div>
+      <div class="stat-item"><div class="stat-number">26</div><div class="stat-label" data-i18n="stats_letters">Letters & digits</div></div>
+      <div class="stat-item"><div class="stat-number">4</div><div class="stat-label" data-i18n="stats_games">Games & modes</div></div>
+      <div class="stat-item"><div class="stat-number">8</div><div class="stat-label" data-i18n="stats_lessons">Lessons</div></div>
+      <div class="stat-item"><div class="stat-number">∞</div><div class="stat-label" data-i18n="stats_rounds">Practice rounds</div></div>
     </div>
   </section>
   <section class="section">
-    <div class="section-tag">What's Inside</div>
-    <h2 class="section-title">Everything you need<br>to master Morse</h2>
-    <p class="section-sub">A complete learning system — from your first dot to fluent decoding.</p>
+    <div class="section-tag" data-i18n="features_title">What's Inside</div>
+    <h2 class="section-title" data-i18n="features_sub">Everything you need to master Morse</h2>
+    <p class="section-sub" data-i18n="features_sub2">A complete learning system — from your first dot to fluent decoding.</p>
     <div class="features-grid">
       <div class="feature-card" onclick="navigate('learn')">
         <div class="feature-icon">📡</div>
-        <h3>Learn from Zero</h3>
-        <p>8 structured lessons with flashcards, audio, and recognition drills. Goes from E·T to the full alphabet.</p>
-        <span class="feature-tag">Open Course →</span>
+        <h3 data-i18n="f1_title">Learn from Zero</h3>
+        <p data-i18n="f1_desc">8 structured lessons with flashcards, audio, and recognition drills.</p>
+        <span class="feature-tag" data-i18n="f1_cta">Open Course →</span>
       </div>
       <div class="feature-card" onclick="navigate('practice')" style="--cyan:#00ffa6">
         <div class="feature-icon">⚡</div>
-        <h3>Practice Mode</h3>
-        <p>Random signals play in Morse audio — type the letter. Track streaks, accuracy, and improve over time.</p>
-        <span class="feature-tag" style="color:var(--mint);border-color:rgba(0,255,166,0.2);background:rgba(0,255,166,0.06)">Open Practice →</span>
+        <h3 data-i18n="f2_title">Practice Mode</h3>
+        <p data-i18n="f2_desc">Random signals play in Morse audio — type the letter.</p>
+        <span class="feature-tag" style="color:var(--mint);border-color:rgba(0,255,166,0.2);background:rgba(0,255,166,0.06)" data-i18n="f2_cta">Open Practice →</span>
       </div>
       <div class="feature-card" onclick="navigate('crossword')" style="--cyan:#ffc857">
         <div class="feature-icon">📋</div>
-        <h3>Morse Crossword</h3>
-        <p>Fill a 7-word grid — each clue plays in Morse audio. Timer, hints, and a satisfying win overlay.</p>
-        <span class="feature-tag" style="color:var(--gold);border-color:rgba(255,200,87,0.2);background:rgba(255,200,87,0.06)">Play Crossword →</span>
+        <h3 data-i18n="f3_title">Morse Crossword</h3>
+        <p data-i18n="f3_desc">Fill a 7-word grid — each clue plays in Morse audio.</p>
+        <span class="feature-tag" style="color:var(--gold);border-color:rgba(255,200,87,0.2);background:rgba(255,200,87,0.06)" data-i18n="f3_cta">Play Crossword →</span>
       </div>
       <div class="feature-card" onclick="navigate('wordle')" style="--cyan:#b181ff">
         <div class="feature-icon">🟩</div>
-        <h3>Morse Wordle</h3>
-        <p>Guess the 5-letter word in 6 tries. Every guess plays back in Morse code with color-coded feedback.</p>
-        <span class="feature-tag" style="color:var(--violet);border-color:rgba(177,129,255,0.2);background:rgba(177,129,255,0.06)">Play Wordle →</span>
+        <h3 data-i18n="f4_title">Morse Wordle</h3>
+        <p data-i18n="f4_desc">Guess the 5-letter word in 6 tries with Morse audio feedback.</p>
+        <span class="feature-tag" style="color:var(--violet);border-color:rgba(177,129,255,0.2);background:rgba(177,129,255,0.06)" data-i18n="f4_cta">Play Wordle →</span>
       </div>
     </div>
   </section>
   <section class="demo-section">
     <div class="demo-card">
       <div class="demo-top">
-        <div><h2>Interactive Demo</h2><p>Type a message — see and hear it in Morse</p></div>
+        <div><h2 data-i18n="demo_title">Interactive Demo</h2><p data-i18n="demo_sub">Type a message — see and hear it in Morse</p></div>
       </div>
       <div class="demo-body">
         <div class="demo-input-area">
-          <div class="demo-input-label">Your message</div>
+          <div class="demo-input-label" data-i18n="demo_msg_label">Your message</div>
           <div class="demo-input-text" id="inputDisplay">HELLO<span class="cursor"></span></div>
           <input type="text" id="morseInput" maxlength="16" value="HELLO"
             style="width:100%;background:transparent;border:none;outline:none;color:var(--text2);font-size:0.9rem;margin-top:0.75rem;caret-color:var(--cyan);font-family:inherit;">
@@ -639,12 +660,12 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
         <div class="demo-morse-text" id="morseTextDisplay"></div>
         <div class="demo-controls">
           <button class="demo-play-btn" onclick="playDemoMorse()">
-            <span class="demo-play-icon" id="demoPlayIcon">▶</span> Play Sound
+            <span class="demo-play-icon" id="demoPlayIcon">▶</span> <span data-i18n="demo_play">Play Sound</span>
           </button>
           <div class="speed-selector">
-            <button class="speed-btn active" onclick="setDemoSpeed(this,12)">Slow</button>
-            <button class="speed-btn" onclick="setDemoSpeed(this,18)">Normal</button>
-            <button class="speed-btn" onclick="setDemoSpeed(this,25)">Fast</button>
+            <button class="speed-btn active" onclick="setDemoSpeed(this,12)" data-i18n="speed_slow">Slow</button>
+            <button class="speed-btn" onclick="setDemoSpeed(this,18)" data-i18n="speed_normal">Normal</button>
+            <button class="speed-btn" onclick="setDemoSpeed(this,25)" data-i18n="speed_fast">Fast</button>
           </div>
         </div>
       </div>
@@ -654,25 +675,25 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
     <div class="footer-inner">
       <div>
         <button class="logo" onclick="navigate('home')" style="font-size:1.3rem;margin-bottom:0.5rem">MorseWave</button>
-        <p style="color:var(--text2);font-size:0.85rem;max-width:220px;line-height:1.6;margin-top:0.5rem">The modern way to learn the world's most iconic communication code.</p>
+        <p style="color:var(--text2);font-size:0.85rem;max-width:220px;line-height:1.6;margin-top:0.5rem" data-i18n="footer_tagline">The modern way to learn the world's most iconic communication code.</p>
       </div>
       <div class="footer-col">
-        <h4>Learn</h4>
-        <button onclick="navigate('learn')">Course (8 lessons)</button>
-        <button onclick="navigate('learn')">Flashcards</button>
-        <button onclick="navigate('learn')">Recognition drills</button>
+        <h4 data-i18n="footer_learn">Learn</h4>
+        <button onclick="navigate('learn')" data-i18n="footer_course">Course (8 lessons)</button>
+        <button onclick="navigate('learn')" data-i18n="footer_flashcards">Flashcards</button>
+        <button onclick="navigate('learn')" data-i18n="footer_recog">Recognition drills</button>
       </div>
       <div class="footer-col">
-        <h4>Practice</h4>
-        <button onclick="navigate('practice')">Decode Mode</button>
-        <button onclick="navigate('practice')">Speed Trainer</button>
+        <h4 data-i18n="footer_practice">Practice</h4>
+        <button onclick="navigate('practice')" data-i18n="footer_decode">Decode Mode</button>
+        <button onclick="navigate('practice')" data-i18n="footer_speed">Speed Trainer</button>
       </div>
       <div class="footer-col">
-        <h4>Games</h4>
-        <button onclick="navigate('games')">All Games</button>
-        <button onclick="navigate('crossword')">Crossword</button>
-        <button onclick="navigate('wordle')">Morse Wordle</button>
-        <button onclick="navigate('practice')">Letter Drill</button>
+        <h4 data-i18n="footer_games">Games</h4>
+        <button onclick="navigate('games')" data-i18n="footer_all">All Games</button>
+        <button onclick="navigate('crossword')" data-i18n="footer_cross">Crossword</button>
+        <button onclick="navigate('wordle')" data-i18n="footer_wordle">Morse Wordle</button>
+        <button onclick="navigate('practice')" data-i18n="footer_drill">Letter Drill</button>
       </div>
     </div>
     <div class="footer-bottom">
@@ -686,50 +707,50 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
 <div id="page-games" class="page">
   <main>
     <div class="games-hero">
-      <div class="hero-badge-v">4 games available</div>
-      <h1>Train through <span>play.</span></h1>
-      <p>Sharpen your decoding instincts with games built around real Morse audio.</p>
+      <div class="hero-badge-v" data-i18n="games_badge">4 games available</div>
+      <h1><span data-i18n="games_title">Train through</span> <span data-i18n="games_title2">play.</span></h1>
+      <p data-i18n="games_sub">Sharpen your decoding instincts with games built around real Morse audio.</p>
     </div>
     <div class="games-grid">
       <div class="game-card gold" onclick="navigate('crossword')">
-        <span class="gc-tag">Featured</span>
+        <span class="gc-tag" data-i18n="gc_featured">Featured</span>
         <div class="gc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></div>
-        <div class="gc-title">Morse Crossword</div>
-        <div class="gc-desc">A 7-word puzzle with intersecting answers. Each clue plays in Morse — listen, decode, and fill the grid.</div>
+        <div class="gc-title" data-i18n="gc1_title">Morse Crossword</div>
+        <div class="gc-desc" data-i18n="gc1_desc">A 7-word puzzle with intersecting answers. Each clue plays in Morse — listen, decode, and fill the grid.</div>
         <div class="gc-meta">
           <span class="gc-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5 min</span>
-          <span class="gc-meta-item">Medium</span>
-          <span class="gc-cta">Play →</span>
+          <span class="gc-meta-item" data-i18n="diff_medium">Medium</span>
+          <span class="gc-cta" data-i18n="gc_play">Play →</span>
         </div>
       </div>
       <div class="game-card violet" onclick="navigate('wordle')">
-        <span class="gc-tag">New</span>
+        <span class="gc-tag" data-i18n="gc_new">New</span>
         <div class="gc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="4"/><rect x="10" y="4" width="4" height="4"/><rect x="17" y="4" width="4" height="4"/><rect x="3" y="11" width="4" height="4"/><rect x="10" y="11" width="4" height="4"/><rect x="17" y="11" width="4" height="4"/><rect x="3" y="18" width="4" height="4"/></svg></div>
-        <div class="gc-title">Morse Wordle</div>
-        <div class="gc-desc">Guess the 5-letter word in 6 tries. Each guess plays back in Morse audio. Color-coded just like the original.</div>
+        <div class="gc-title" data-i18n="gc2_title">Morse Wordle</div>
+        <div class="gc-desc" data-i18n="gc2_desc">Guess the 5-letter word in 6 tries. Each guess plays back in Morse audio.</div>
         <div class="gc-meta">
           <span class="gc-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>3 min</span>
-          <span class="gc-meta-item">Medium</span>
-          <span class="gc-cta">Play →</span>
+          <span class="gc-meta-item" data-i18n="diff_medium">Medium</span>
+          <span class="gc-cta" data-i18n="gc_play">Play →</span>
         </div>
       </div>
       <div class="game-card mint" onclick="navigate('practice')">
-        <span class="gc-tag">Quickplay</span>
+        <span class="gc-tag" data-i18n="gc_quickplay">Quickplay</span>
         <div class="gc-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.09 12.97a1 1 0 0 0 .77 1.65H11l-2 7.38L19.91 11.03A1 1 0 0 0 19.14 9.38H13l2-7.38z"/></svg></div>
-        <div class="gc-title">Letter Drill</div>
-        <div class="gc-desc">Random signal plays — type the answer. Build streaks and track accuracy across letters and numbers.</div>
+        <div class="gc-title" data-i18n="gc3_title">Letter Drill</div>
+        <div class="gc-desc" data-i18n="gc3_desc">Random signal plays — type the answer. Build streaks and track accuracy.</div>
         <div class="gc-meta">
-          <span class="gc-meta-item">Endless</span>
-          <span class="gc-meta-item">Easy → Hard</span>
-          <span class="gc-cta">Play →</span>
+          <span class="gc-meta-item" data-i18n="gc_endless">Endless</span>
+          <span class="gc-meta-item" data-i18n="diff_easy_hard">Easy → Hard</span>
+          <span class="gc-cta" data-i18n="gc_play">Play →</span>
         </div>
       </div>
       <div class="game-card locked" title="Coming soon">
-        <span class="gc-tag" style="--c:var(--text2);--tag-bg:rgba(255,255,255,0.04);--tag-border:rgba(255,255,255,0.08)">Soon</span>
+        <span class="gc-tag" style="--c:var(--text2);--tag-bg:rgba(255,255,255,0.04);--tag-border:rgba(255,255,255,0.08)" data-i18n="gc_soon">Soon</span>
         <div class="gc-icon" style="background:rgba(255,255,255,0.06);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-        <div class="gc-title">Speed Decode</div>
-        <div class="gc-desc">60 seconds. Decode as many signals as you can. Speed climbs with every correct answer.</div>
-        <div class="gc-meta"><span class="gc-meta-item">1 min</span><span class="gc-meta-item">Hard</span><span class="gc-cta" style="color:var(--text3)">Locked</span></div>
+        <div class="gc-title" data-i18n="gc4_title">Speed Decode</div>
+        <div class="gc-desc" data-i18n="gc4_desc">60 seconds. Decode as many signals as you can.</div>
+        <div class="gc-meta"><span class="gc-meta-item">1 min</span><span class="gc-meta-item" data-i18n="diff_hard">Hard</span><span class="gc-cta" style="color:var(--text3)" data-i18n="gc_locked">Locked</span></div>
       </div>
     </div>
   </main>
@@ -743,13 +764,13 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
       <div class="progress-counter" id="progressCounter">0 / 8</div>
     </div>
-    <div class="known-rail" id="knownRail" style="display:none"><span class="known-rail-label">Known</span></div>
+    <div class="known-rail" id="knownRail" style="display:none"><span class="known-rail-label" data-i18n="known_label">Known</span></div>
     <div class="learn-card">
       <div class="step-tag"><span id="stepTag">LESSON</span><span class="phase" id="phaseTag">START</span></div>
       <div class="lstage" id="lstage"></div>
       <div class="learn-controls">
-        <button class="lbtn lbtn-ghost" id="lbackBtn" style="visibility:hidden">← Back</button>
-        <button class="lbtn lbtn-primary" id="lnextBtn" disabled>Continue →</button>
+        <button class="lbtn lbtn-ghost" id="lbackBtn" style="visibility:hidden" data-i18n="learn_back">← Back</button>
+        <button class="lbtn lbtn-primary" id="lnextBtn" disabled data-i18n="learn_continue">Continue →</button>
       </div>
     </div>
   </main>
@@ -762,20 +783,20 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
     <div class="hud">
       <div class="hud-cell correct">
         <div class="hud-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div class="hud-text"><span class="hud-label">Correct</span><span class="hud-value" id="hudCorrect">0</span></div>
+        <div class="hud-text"><span class="hud-label" data-i18n="practice_correct">Correct</span><span class="hud-value" id="hudCorrect">0</span></div>
       </div>
       <div class="hud-cell streak">
         <div class="hud-icon"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M13.5 0.67s.74 1.95.74 3.54c0 1.53-1 2.77-2.53 2.77-1.54 0-2.69-1.24-2.69-2.77l.02-.27C7.55 5.78 6.5 8.27 6.5 11c0 3.59 2.91 6.5 6.5 6.5s6.5-2.91 6.5-6.5c0-4.38-2.1-8.32-6-10.33zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg></div>
-        <div class="hud-text"><span class="hud-label">Streak</span><span class="hud-value" id="hudStreak">0</span></div>
+        <div class="hud-text"><span class="hud-label" data-i18n="practice_streak">Streak</span><span class="hud-value" id="hudStreak">0</span></div>
       </div>
       <div class="hud-cell wrong">
         <div class="hud-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
-        <div class="hud-text"><span class="hud-label">Wrong</span><span class="hud-value" id="hudWrong">0</span></div>
+        <div class="hud-text"><span class="hud-label" data-i18n="practice_wrong">Wrong</span><span class="hud-value" id="hudWrong">0</span></div>
       </div>
     </div>
     <div class="pcard" id="pcard">
       <div class="card-head">
-        <div class="round-meta"><span class="round-lbl">Question</span><span class="round-num" id="roundNum">#001</span></div>
+        <div class="round-meta"><span class="round-lbl" data-i18n="practice_question">Question</span><span class="round-num" id="roundNum">#001</span></div>
         <div class="head-controls">
           <div class="seg" id="modeSeg">
             <button class="active" data-mode="letters">A–Z</button>
@@ -783,32 +804,32 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
             <button data-mode="mixed">Mix</button>
           </div>
           <div class="seg green" id="speedSeg">
-            <button data-wpm="8">Slow</button>
-            <button class="active" data-wpm="14">Med</button>
-            <button data-wpm="22">Fast</button>
+            <button data-wpm="8" data-i18n="speed_slow">Slow</button>
+            <button class="active" data-wpm="14" data-i18n="speed_med">Med</button>
+            <button data-wpm="22" data-i18n="speed_fast">Fast</button>
           </div>
         </div>
       </div>
       <div class="stage-p">
-        <div class="stage-lbl">Listen and decode</div>
+        <div class="stage-lbl" data-i18n="practice_listen">Listen and decode</div>
         <div class="morse-visual" id="visual"></div>
         <div class="morse-text" id="pMorseText">· · · ·</div>
         <div class="play-row">
           <button class="p-play-btn" id="pplayBtn">
             <span class="p-play-icon"><svg id="pplayIcon" viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>
-            <span id="pplayText">Play Signal</span>
+            <span id="pplayText" data-i18n="practice_play">Play Signal</span>
             <span class="wf"><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span><span class="wf-bar"></span></span>
           </button>
           <button class="ghost-btn" id="hintBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9.66 17h4.68M12 3a7 7 0 0 0-4 12.74V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 3z"/></svg>
-            Hint
+            <span data-i18n="practice_hint">Hint</span>
           </button>
         </div>
       </div>
-      <div class="hint-panel" id="hintPanel"><div class="hint-inner"><div class="hint-title">Morse Reference</div><div class="hint-grid" id="hintGrid"></div></div></div>
+      <div class="hint-panel" id="hintPanel"><div class="hint-inner"><div class="hint-title" data-i18n="hint_ref">Morse Reference</div><div class="hint-grid" id="hintGrid"></div></div></div>
       <div class="input-section">
         <div class="input-wrap" id="inputWrap">
-          <div class="input-row"><span class="input-lbl">Your Answer</span><span class="kbd"><kbd>Enter</kbd> to submit</span></div>
+          <div class="input-row"><span class="input-lbl" data-i18n="practice_answer">Your Answer</span><span class="kbd"><kbd>Enter</kbd></span></div>
           <input type="text" id="answer" class="answer" placeholder="?" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text">
         </div>
       </div>
@@ -819,16 +840,16 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
         </div>
       </div>
       <div class="pcontrols">
-        <button class="pbtn pbtn-primary" id="submitBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg>Check</button>
-        <button class="pbtn pbtn-next" id="pnextBtn" style="display:none">Next Signal <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
-        <button class="pbtn pbtn-ghost" id="skipBtn">Skip</button>
+        <button class="pbtn pbtn-primary" id="submitBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="practice_submit">Check</span></button>
+        <button class="pbtn pbtn-next" id="pnextBtn" style="display:none"><span data-i18n="practice_next">Next Signal</span> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+        <button class="pbtn pbtn-ghost" id="skipBtn" data-i18n="practice_skip">Skip</button>
       </div>
     </div>
     <div class="pstats">
-      <div class="pstat"><div class="pstat-l">Accuracy</div><div class="pstat-v" id="statAcc">—</div></div>
-      <div class="pstat"><div class="pstat-l">Best Streak</div><div class="pstat-v" id="statBest">0</div></div>
-      <div class="pstat"><div class="pstat-l">Total</div><div class="pstat-v" id="statTotal">0</div></div>
-      <div class="pstat"><div class="pstat-l">Mode</div><div class="pstat-v" id="statMode">A–Z</div></div>
+      <div class="pstat"><div class="pstat-l" data-i18n="practice_accuracy">Accuracy</div><div class="pstat-v" id="statAcc">—</div></div>
+      <div class="pstat"><div class="pstat-l" data-i18n="practice_best">Best Streak</div><div class="pstat-v" id="statBest">0</div></div>
+      <div class="pstat"><div class="pstat-l" data-i18n="practice_total">Total</div><div class="pstat-v" id="statTotal">0</div></div>
+      <div class="pstat"><div class="pstat-l" data-i18n="practice_mode">Mode</div><div class="pstat-v" id="statMode">A–Z</div></div>
     </div>
   </main>
 </div>
@@ -838,48 +859,48 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
   <div class="xtoast" id="xtoast"></div>
   <main>
     <div class="header-row">
-      <div><h1 class="xw-title">Morse <span>Crossword</span></h1><p class="xw-subtitle">Listen to each clue in Morse and fill the grid.</p></div>
+      <div><h1 class="xw-title"><span data-i18n="xw_title">Morse</span> <span data-i18n="xw_title2">Crossword</span></h1><p class="xw-subtitle" data-i18n="xw_sub">Listen to each clue in Morse and fill the grid.</p></div>
       <div class="header-stats">
-        <div class="h-stat filled"><span class="h-stat-l">Filled</span><span class="h-stat-v" id="statFilled">0/22</span></div>
-        <div class="h-stat solved"><span class="h-stat-l">Solved</span><span class="h-stat-v" id="statSolved">0/7</span></div>
-        <div class="h-stat time"><span class="h-stat-l">Time</span><span class="h-stat-v" id="statTime">00:00</span></div>
+        <div class="h-stat filled"><span class="h-stat-l" data-i18n="xw_filled">Filled</span><span class="h-stat-v" id="statFilled">0/22</span></div>
+        <div class="h-stat solved"><span class="h-stat-l" data-i18n="xw_solved">Solved</span><span class="h-stat-v" id="statSolved">0/7</span></div>
+        <div class="h-stat time"><span class="h-stat-l" data-i18n="xw_time">Time</span><span class="h-stat-v" id="statTime">00:00</span></div>
       </div>
     </div>
     <div class="active-bar" id="activeBar">
       <div class="ab-num" id="abNum">1</div>
-      <div class="ab-text"><div class="ab-dir" id="abDir">ACROSS · 5 letters</div><div class="ab-clue" id="abClue">Pick a clue to begin</div><div class="ab-morse" id="abMorse">· − · · ·</div></div>
+      <div class="ab-text"><div class="ab-dir" id="abDir">ACROSS · 5 letters</div><div class="ab-clue" id="abClue" data-i18n="xw_pick_clue">Pick a clue to begin</div><div class="ab-morse" id="abMorse">· − · · ·</div></div>
       <button class="ab-play" id="abPlay"><svg id="abPlayIcon" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
     <div class="xgame">
       <div class="grid-wrap"><div class="xgrid" id="xgrid"></div></div>
       <div class="clues-panel">
-        <div class="clues-head"><span class="clues-title">Clues</span><span class="clues-help"><kbd>Tab</kbd> · <kbd>↑↓←→</kbd> · <kbd>Space</kbd> play</span></div>
+        <div class="clues-head"><span class="clues-title" data-i18n="xw_clues">Clues</span><span class="clues-help"><kbd>Tab</kbd> · <kbd>↑↓←→</kbd> · <kbd>Space</kbd></span></div>
         <div class="clues-body">
-          <div class="clues-section"><div class="clues-section-title">Across</div><div id="cluesAcross"></div></div>
-          <div class="clues-section"><div class="clues-section-title">Down</div><div id="cluesDown"></div></div>
+          <div class="clues-section"><div class="clues-section-title" data-i18n="xw_across">Across</div><div id="cluesAcross"></div></div>
+          <div class="clues-section"><div class="clues-section-title" data-i18n="xw_down">Down</div><div id="cluesDown"></div></div>
         </div>
       </div>
     </div>
     <div class="xcontrols">
-      <button class="xbtn xbtn-check" id="checkBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>Check Answers</button>
-      <button class="xbtn xbtn-ghost gold" id="xhintBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9.66 17h4.68M12 3a7 7 0 0 0-4 12.74V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 3z"/></svg>Reveal Letter</button>
-      <button class="xbtn xbtn-ghost" id="solveBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Reveal Word</button>
-      <button class="xbtn xbtn-ghost rose" id="xresetBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>Reset</button>
+      <button class="xbtn xbtn-check" id="checkBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg><span data-i18n="xw_check">Check Answers</span></button>
+      <button class="xbtn xbtn-ghost gold" id="xhintBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M9.66 17h4.68M12 3a7 7 0 0 0-4 12.74V18a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26A7 7 0 0 0 12 3z"/></svg><span data-i18n="xw_reveal_letter">Reveal Letter</span></button>
+      <button class="xbtn xbtn-ghost" id="solveBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span data-i18n="xw_reveal_word">Reveal Word</span></button>
+      <button class="xbtn xbtn-ghost rose" id="xresetBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span data-i18n="xw_reset">Reset</span></button>
     </div>
   </main>
   <div class="xwin" id="xwinOverlay">
     <div class="xwin-card">
       <div class="xwin-trophy">🏆</div>
-      <div class="xwin-title">Puzzle Solved!</div>
-      <div class="xwin-sub">You decoded every word. Nicely done, operator.</div>
+      <div class="xwin-title" data-i18n="xw_win_title">Puzzle Solved!</div>
+      <div class="xwin-sub" data-i18n="xw_win_sub">You decoded every word. Nicely done, operator.</div>
       <div class="xwin-stats">
-        <div class="xwin-stat"><div class="xwin-stat-l">Time</div><div class="xwin-stat-v" id="xwinTime">00:00</div></div>
-        <div class="xwin-stat"><div class="xwin-stat-l">Hints</div><div class="xwin-stat-v" id="xwinHints">0</div></div>
-        <div class="xwin-stat"><div class="xwin-stat-l">Plays</div><div class="xwin-stat-v" id="xwinPlays">0</div></div>
+        <div class="xwin-stat"><div class="xwin-stat-l" data-i18n="xw_time">Time</div><div class="xwin-stat-v" id="xwinTime">00:00</div></div>
+        <div class="xwin-stat"><div class="xwin-stat-l" data-i18n="xw_hints">Hints</div><div class="xwin-stat-v" id="xwinHints">0</div></div>
+        <div class="xwin-stat"><div class="xwin-stat-l" data-i18n="xw_plays">Plays</div><div class="xwin-stat-v" id="xwinPlays">0</div></div>
       </div>
       <div class="xwin-buttons">
-        <button class="xbtn xbtn-check" id="xwinPlayAgain">Play Again</button>
-        <button class="xbtn xbtn-ghost" onclick="navigate('games')">More Games</button>
+        <button class="xbtn xbtn-check" id="xwinPlayAgain" data-i18n="xw_play_again">Play Again</button>
+        <button class="xbtn xbtn-ghost" onclick="navigate('games')" data-i18n="xw_more_games">More Games</button>
       </div>
     </div>
   </div>
@@ -889,29 +910,29 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
 <div id="page-wordle" class="page">
   <div class="wtoast" id="wtoast"></div>
   <main>
-    <div class="wordle-title-row"><h1 class="wordle-title">Morse <span>Wordle</span></h1><p class="wordle-subtitle">Guess the 5-letter word in 6 tries. Each guess plays in Morse.</p></div>
+    <div class="wordle-title-row"><h1 class="wordle-title"><span data-i18n="wl_title">Morse</span> <span data-i18n="wl_title2">Wordle</span></h1><p class="wordle-subtitle" data-i18n="wl_sub">Guess the 5-letter word in 6 tries. Each guess plays in Morse.</p></div>
     <div class="board" id="wboard"></div>
     <div class="wcontrols-row">
-      <button class="pill-btn audio" id="replayBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg>Replay last guess</button>
-      <button class="pill-btn" id="wnewBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>New word</button>
+      <button class="pill-btn audio" id="replayBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5,3 19,12 5,21"/></svg><span data-i18n="wl_replay">Replay last guess</span></button>
+      <button class="pill-btn" id="wnewBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg><span data-i18n="wl_new">New word</span></button>
     </div>
     <div class="keyboard" id="wkeyboard"></div>
   </main>
   <div class="woverlay" id="helpOverlay">
     <div class="wmodal">
-      <div class="modal-title">How to play</div>
+      <div class="modal-title" data-i18n="wl_how">How to play</div>
       <div class="help-content">
-        <p>Guess the hidden <strong style="color:var(--cyan)">5-letter word</strong> in 6 tries.</p>
-        <p>After each guess, tiles flip and the word plays in Morse audio.</p>
-        <h3>Tile colors</h3>
+        <p><span data-i18n="wl_guess">Guess the hidden</span> <strong style="color:var(--cyan)" data-i18n="wl_word">5-letter word</strong> <span data-i18n="wl_in6">in 6 tries.</span></p>
+        <p data-i18n="wl_after">After each guess, tiles flip and the word plays in Morse audio.</p>
+        <h3 data-i18n="wl_colors">Tile colors</h3>
         <div class="help-example"><div class="help-tile c">M</div><div class="help-tile n">O</div><div class="help-tile n">R</div><div class="help-tile n">S</div><div class="help-tile n">E</div></div>
-        <p><strong style="color:var(--mint)">Green</strong> — right letter, right spot.</p>
+        <p><strong style="color:var(--mint)" data-i18n="wl_green">Green</strong> <span data-i18n="wl_green2">— right letter, right spot.</span></p>
         <div class="help-example"><div class="help-tile n">W</div><div class="help-tile p">A</div><div class="help-tile n">V</div><div class="help-tile n">E</div><div class="help-tile n">S</div></div>
-        <p><strong style="color:var(--gold)">Gold</strong> — letter exists but wrong spot.</p>
+        <p><strong style="color:var(--gold)" data-i18n="wl_gold">Gold</strong> <span data-i18n="wl_gold2">— letter exists but wrong spot.</span></p>
         <div class="help-example"><div class="help-tile n">R</div><div class="help-tile n">A</div><div class="help-tile a">D</div><div class="help-tile n">I</div><div class="help-tile n">O</div></div>
-        <p><strong style="color:var(--text2)">Gray</strong> — letter not in word.</p>
+        <p><strong style="color:var(--text2)" data-i18n="wl_gray">Gray</strong> <span data-i18n="wl_gray2">— letter not in word.</span></p>
       </div>
-      <div class="modal-btns" style="margin-top:1.5rem"><button class="modal-btn primary" id="helpCloseBtn">Got it</button></div>
+      <div class="modal-btns" style="margin-top:1.5rem"><button class="modal-btn primary" id="helpCloseBtn" data-i18n="wl_gotit">Got it</button></div>
     </div>
   </div>
   <div class="woverlay" id="wendOverlay">
@@ -921,12 +942,12 @@ footer{border-top:1px solid rgba(255,255,255,0.06);padding:3rem 2rem;max-width:1
       <div class="modal-sub" id="wendSub">Nicely decoded.</div>
       <div class="modal-answer"><div class="modal-answer-w" id="wendWord">MORSE</div><div class="modal-answer-m" id="wendMorse">-- --- .-. ... .</div></div>
       <div class="modal-stats">
-        <div class="modal-stat"><div class="modal-stat-l">Played</div><div class="modal-stat-v" id="wstatPlayed">0</div></div>
-        <div class="modal-stat"><div class="modal-stat-l">Win %</div><div class="modal-stat-v" id="wstatWinPct">0%</div></div>
-        <div class="modal-stat"><div class="modal-stat-l">Streak</div><div class="modal-stat-v" id="wstatStreak">0</div></div>
-        <div class="modal-stat"><div class="modal-stat-l">Best</div><div class="modal-stat-v" id="wstatBest">0</div></div>
+        <div class="modal-stat"><div class="modal-stat-l" data-i18n="wl_played">Played</div><div class="modal-stat-v" id="wstatPlayed">0</div></div>
+        <div class="modal-stat"><div class="modal-stat-l" data-i18n="wl_win_pct">Win %</div><div class="modal-stat-v" id="wstatWinPct">0%</div></div>
+        <div class="modal-stat"><div class="modal-stat-l" data-i18n="wl_streak_lbl">Streak</div><div class="modal-stat-v" id="wstatStreak">0</div></div>
+        <div class="modal-stat"><div class="modal-stat-l" data-i18n="wl_best">Best</div><div class="modal-stat-v" id="wstatBest">0</div></div>
       </div>
-      <div class="modal-btns"><button class="modal-btn primary" id="wendNewBtn">New Word</button><button class="modal-btn ghost" onclick="navigate('games')">More Games</button></div>
+      <div class="modal-btns"><button class="modal-btn primary" id="wendNewBtn" data-i18n="wl_new_word">New Word</button><button class="modal-btn ghost" onclick="navigate('games')" data-i18n="xw_more_games">More Games</button></div>
     </div>
   </div>
 </div>
@@ -945,24 +966,450 @@ function navigate(page){
   if(page==='crossword'&&!crosswordInited)initCrossword();
   if(page==='wordle'&&!wordleInited)initWordle();
   if(page==='learn'&&!learnInited)initLearn();
+  applyTranslations();
 }
+// ═══ LANGUAGES ═══
+const LANGUAGES=[
+  {code:'en',flag:'🇬🇧',name:'English',native:'English'},
+  {code:'he',flag:'🇮🇱',name:'Hebrew',native:'עברית',rtl:true},
+  {code:'ar',flag:'🇸🇦',name:'Arabic',native:'العربية',rtl:true},
+  {code:'zh',flag:'🇨🇳',name:'Chinese',native:'中文'},
+  {code:'es',flag:'🇪🇸',name:'Spanish',native:'Español'},
+  {code:'fr',flag:'🇫🇷',name:'French',native:'Français'},
+  {code:'de',flag:'🇩🇪',name:'German',native:'Deutsch'},
+  {code:'pt',flag:'🇧🇷',name:'Portuguese',native:'Português'},
+  {code:'ru',flag:'🇷🇺',name:'Russian',native:'Русский'},
+  {code:'ja',flag:'🇯🇵',name:'Japanese',native:'日本語'},
+  {code:'ko',flag:'🇰🇷',name:'Korean',native:'한국어'},
+  {code:'hi',flag:'🇮🇳',name:'Hindi',native:'हिन्दी'},
+  {code:'tr',flag:'🇹🇷',name:'Turkish',native:'Türkçe'},
+  {code:'it',flag:'🇮🇹',name:'Italian',native:'Italiano'},
+  {code:'pl',flag:'🇵🇱',name:'Polish',native:'Polski'},
+  {code:'nl',flag:'🇳🇱',name:'Dutch',native:'Nederlands'},
+  {code:'uk',flag:'🇺🇦',name:'Ukrainian',native:'Українська'},
+  {code:'id',flag:'🇮🇩',name:'Indonesian',native:'Bahasa Indonesia'},
+  {code:'vi',flag:'🇻🇳',name:'Vietnamese',native:'Tiếng Việt'},
+  {code:'th',flag:'🇹🇭',name:'Thai',native:'ภาษาไทย'},
+  {code:'fa',flag:'🇮🇷',name:'Persian',native:'فارسی',rtl:true},
+  {code:'sv',flag:'🇸🇪',name:'Swedish',native:'Svenska'},
+  {code:'cs',flag:'🇨🇿',name:'Czech',native:'Čeština'},
+  {code:'ro',flag:'🇷🇴',name:'Romanian',native:'Română'},
+  {code:'el',flag:'🇬🇷',name:'Greek',native:'Ελληνικά'},
+  {code:'hu',flag:'🇭🇺',name:'Hungarian',native:'Magyar'},
+  {code:'da',flag:'🇩🇰',name:'Danish',native:'Dansk'},
+  {code:'fi',flag:'🇫🇮',name:'Finnish',native:'Suomi'},
+  {code:'no',flag:'🇳🇴',name:'Norwegian',native:'Norsk'},
+  {code:'bn',flag:'🇧🇩',name:'Bengali',native:'বাংলা'},
+];
+
+const TRANSLATIONS={
+  en:{
+    appTagline:'Interactive Morse Code Learning',hero_title:'Learn Morse Code',hero_title2:'Like a Pro',
+    hero_sub:'Master the timeless art of Morse code with interactive lessons, real-time practice, and daily challenges.',
+    btn_start:'Start Learning →',btn_practice:'Try Practice',
+    stats_letters:'Letters & digits',stats_games:'Games & modes',stats_lessons:'Lessons',stats_rounds:'Practice rounds',
+    features_title:'What\'s Inside',features_sub:'Everything you need to master Morse',features_sub2:'A complete learning system — from your first dot to fluent decoding.',
+    f1_title:'Learn from Zero',f1_desc:'8 structured lessons with flashcards, audio, and recognition drills. Goes from E·T to the full alphabet.',f1_cta:'Open Course →',
+    f2_title:'Practice Mode',f2_desc:'Random signals play in Morse audio — type the letter. Track streaks, accuracy, and improve over time.',f2_cta:'Open Practice →',
+    f3_title:'Morse Crossword',f3_desc:'Fill a 7-word grid — each clue plays in Morse audio. Timer, hints, and a satisfying win overlay.',f3_cta:'Play Crossword →',
+    f4_title:'Morse Wordle',f4_desc:'Guess the 5-letter word in 6 tries. Every guess plays back in Morse code with color-coded feedback.',f4_cta:'Play Wordle →',
+    demo_title:'Interactive Demo',demo_sub:'Type a message — see and hear it in Morse',demo_play:'Play Sound',
+    speed_slow:'Slow',speed_normal:'Normal',speed_fast:'Fast',
+    footer_learn:'Learn',footer_course:'Course (8 lessons)',footer_flashcards:'Flashcards',footer_recog:'Recognition drills',
+    footer_practice:'Practice',footer_decode:'Decode Mode',footer_speed:'Speed Trainer',
+    footer_games:'Games',footer_all:'All Games',footer_cross:'Crossword',footer_wordle:'Morse Wordle',footer_drill:'Letter Drill',
+    nav_learn:'Learn',nav_practice:'Practice',nav_games:'Games',nav_start:'Start Practice →',
+    nav_back_home:'← Home',nav_back_games:'← Games',
+    games_badge:'4 games available',games_title:'Train through',games_title2:'play.',
+    games_sub:'Sharpen your decoding instincts with games built around real Morse audio.',
+    gc_featured:'Featured',gc_new:'New',gc_quickplay:'Quickplay',gc_soon:'Soon',
+    gc1_title:'Morse Crossword',gc1_desc:'A 7-word puzzle with intersecting answers. Each clue plays in Morse — listen, decode, and fill the grid.',
+    gc2_title:'Morse Wordle',gc2_desc:'Guess the 5-letter word in 6 tries. Each guess plays back in Morse audio. Color-coded just like the original.',
+    gc3_title:'Letter Drill',gc3_desc:'Random signal plays — type the answer. Build streaks and track accuracy across letters and numbers.',
+    gc4_title:'Speed Decode',gc4_desc:'60 seconds. Decode as many signals as you can. Speed climbs with every correct answer.',
+    gc_play:'Play →',gc_locked:'Locked',gc_endless:'Endless',
+    practice_correct:'Correct',practice_streak:'Streak',practice_wrong:'Wrong',
+    practice_question:'Question',practice_listen:'Listen and decode',practice_play:'Play Signal',practice_hint:'Hint',
+    practice_answer:'Your Answer',practice_submit:'Check',practice_next:'Next Signal',practice_skip:'Skip',
+    practice_accuracy:'Accuracy',practice_best:'Best Streak',practice_total:'Total',practice_mode:'Mode',
+    learn_continue:'Continue →',learn_back:'← Back',learn_tap:'Tap to reveal Morse · click to hear it',
+    learn_tap_flip:'tap to flip',learn_play:'Play sound',learn_what_letter:'What letter is this?',
+    learn_type_letter:'Type the letter for this Morse code',learn_your_answer:'Your answer',
+    learn_type_word:'Type the word you hear',learn_play_word:'Play word',
+    learn_complete_title:'Lesson Complete!',learn_complete_sub:'You\'ve learned: {letters}. Keep going!',
+    learn_new_letters:'New letters',learn_total_known:'Total known',learn_all_done:'🏆 All Done!',
+    learn_next_lesson:'Next Lesson →',
+    xw_title:'Morse',xw_title2:'Crossword',xw_sub:'Listen to each clue in Morse and fill the grid.',
+    xw_filled:'Filled',xw_solved:'Solved',xw_time:'Time',xw_across:'Across',xw_down:'Down',
+    xw_clues:'Clues',xw_letters:'letters',xw_check:'Check Answers',xw_reveal_letter:'Reveal Letter',
+    xw_reveal_word:'Reveal Word',xw_reset:'Reset',xw_pick_cell:'Pick a cell first',xw_pick_word:'Pick a word first',
+    xw_keep_going:'correct, keep going!',xw_wrong:'wrong',xw_win_title:'Puzzle Solved!',
+    xw_win_sub:'You decoded every word. Nicely done, operator.',xw_hints:'Hints',xw_plays:'Plays',
+    xw_play_again:'Play Again',xw_more_games:'More Games',xw_reset_confirm:'Reset the whole puzzle?',
+    wl_title:'Morse',wl_title2:'Wordle',wl_sub:'Guess the 5-letter word in 6 tries. Each guess plays in Morse.',
+    wl_replay:'Replay last guess',wl_new:'New word',wl_how:'How to play',
+    wl_guess:'Guess the hidden',wl_word:'5-letter word',wl_in6:'in 6 tries.',
+    wl_after:'After each guess, tiles flip and the word plays in Morse audio.',
+    wl_colors:'Tile colors',wl_green:'Green',wl_green2:'— right letter, right spot.',
+    wl_gold:'Gold',wl_gold2:'— letter exists but wrong spot.',wl_gray:'Gray',wl_gray2:'— letter not in word.',
+    wl_gotit:'Got it',wl_new_word:'New Word',wl_played:'Played',wl_win_pct:'Win %',wl_streak_lbl:'Streak',wl_best:'Best',
+    wl_solved:['Brilliant!','Nailed it!','Outstanding!'],wl_lost:'Signal Lost',
+    wl_decoded:'Nicely decoded, operator.',wl_word_was:'The word was: ',
+    clue1:'Samuel ___, telegraph pioneer',clue2:'Wireless transmitter device',clue3:'A system of signals',
+    clue4:'Long Morse signal (−)',clue5:'Radio ___, frequency form',clue6:'Distress call',clue7:'___ radio operator',
+    lesson1_name:'Your first signals',lesson1_sub:'The simplest signals: E is one dot, T is one dash.',
+    lesson2_name:'Adding I and A',lesson2_sub:'Two-symbol codes. Building on E and T.',
+    lesson3_name:'N and M',lesson3_sub:'Mirror images of I and A.',
+    lesson4_name:'S and O',lesson4_sub:'The famous SOS combination — ···  −−−  ···',
+    lesson5_name:'R, U, D, K',lesson5_sub:'Longer patterns start here.',
+    lesson6_name:'G, W, B, C',lesson6_sub:'More complex four-symbol codes.',
+    lesson7_name:'H, V, F, L',lesson7_sub:'Four-symbol letters — focus on rhythm.',
+    lesson8_name:'Final Letters',lesson8_sub:"The last group — you're almost there!",
+    fb_correct:['Perfect.','Spot on.','Nailed it.','Excellent.'],
+    fb_wrong:['Not quite.','Close.','Almost.'],
+    fb_correct_label:'Correct:',
+    footer_tagline:"The modern way to learn the world's most iconic communication code.",
+    demo_msg_label:'Your message',
+    known_label:'Known',
+    hint_ref:'Morse Reference',
+    xw_pick_clue:'Pick a clue to begin',
+    diff_medium:'Medium',diff_hard:'Hard',diff_easy_hard:'Easy → Hard',
+    gc_endless:'Endless',
+    speed_med:'Med',
+    practice_playing:'Playing...',practice_play_again:'Play Again',
+    mode_mix:'MIX',streak_row:'in a row',
+    lesson_label:'LESSON',
+    learn_correct_short:'Correct!',learn_answer_label:'Answer',
+    fb_correct_label_learn:'Correct!',
+    wl_enter_key:'ENTER',
+    xw_correct_label:'correct',
+    lesson1_name:'Your first signals',lesson1_sub:'The simplest signals: E is one dot, T is one dash.',
+    lesson2_name:'Adding I and A',lesson2_sub:'Two-symbol codes. Building on E and T.',
+    lesson3_name:'N and M',lesson3_sub:'Mirror images of I and A.',
+    lesson4_name:'S and O',lesson4_sub:'The famous SOS combination — ···  −−−  ···',
+    lesson5_name:'R, U, D, K',lesson5_sub:'Longer patterns start here.',
+    lesson6_name:'G, W, B, C',lesson6_sub:'More complex four-symbol codes.',
+    lesson7_name:'H, V, F, L',lesson7_sub:'Four-symbol letters — focus on rhythm.',
+    lesson8_name:'Final Letters',lesson8_sub:"The last group — you're almost there!",
+  },
+  he:{
+    appTagline:'לימוד קוד מורס אינטראקטיבי',hero_title:'למד קוד מורס',hero_title2:'כמו מקצוען',
+    hero_sub:'שלוט באמנות קוד מורס עם שיעורים אינטראקטיביים, תרגול בזמן אמת ואתגרים יומיים.',
+    btn_start:'התחל ללמוד ←',btn_practice:'נסה תרגול',
+    stats_letters:'אותיות וספרות',stats_games:'משחקים ומצבים',stats_lessons:'שיעורים',stats_rounds:'סיבובי תרגול',
+    features_title:'מה יש בפנים',features_sub:'כל מה שצריך לשלוט במורס',features_sub2:'מערכת לימוד מלאה — מהנקודה הראשונה ועד פענוח שוטף.',
+    f1_title:'למד מאפס',f1_desc:'8 שיעורים מובנים עם כרטיסי זיכרון, אודיו ותרגילי זיהוי. מ-E·T ועד לאלפבית המלא.',f1_cta:'פתח קורס ←',
+    f2_title:'מצב תרגול',f2_desc:'אותות אקראיים מתנגנים — הקלד את האות. עקוב אחר רצפים, דיוק והשתפר עם הזמן.',f2_cta:'פתח תרגול ←',
+    f3_title:'תשבץ מורס',f3_desc:'מלא רשת של 7 מילים — כל רמז מתנגן במורס. טיימר, רמזים ומסך ניצחון.',f3_cta:'שחק בתשבץ ←',
+    f4_title:'וורדל מורס',f4_desc:'נחש מילה בת 5 אותיות ב-6 ניסיונות. כל ניחוש מתנגן בקוד מורס עם משוב צבעוני.',f4_cta:'שחק וורדל ←',
+    demo_title:'הדגמה אינטראקטיבית',demo_sub:'הקלד הודעה — ראה ושמע אותה במורס',demo_play:'נגן צליל',
+    speed_slow:'איטי',speed_normal:'רגיל',speed_fast:'מהיר',
+    footer_learn:'למד',footer_course:'קורס (8 שיעורים)',footer_flashcards:'כרטיסי זיכרון',footer_recog:'תרגילי זיהוי',
+    footer_practice:'תרגול',footer_decode:'מצב פענוח',footer_speed:'מאמן מהירות',
+    footer_games:'משחקים',footer_all:'כל המשחקים',footer_cross:'תשבץ',footer_wordle:'וורדל מורס',footer_drill:'תרגול אותיות',
+    nav_learn:'למד',nav_practice:'תרגל',nav_games:'משחקים',nav_start:'התחל תרגול ←',
+    nav_back_home:'בית ←',nav_back_games:'משחקים ←',
+    games_badge:'4 משחקים זמינים',games_title:'התאמן דרך',games_title2:'משחק.',
+    games_sub:'חדד את יכולות הפענוח שלך עם משחקים המבוססים על אודיו מורס אמיתי.',
+    gc_featured:'מומלץ',gc_new:'חדש',gc_quickplay:'משחק מהיר',gc_soon:'בקרוב',
+    gc1_title:'תשבץ מורס',gc1_desc:'פאזל בן 7 מילים עם תשובות חוצות. כל רמז מתנגן במורס — הקשב, פענח ומלא את הרשת.',
+    gc2_title:'וורדל מורס',gc2_desc:'נחש מילה בת 5 אותיות ב-6 ניסיונות. כל ניחוש מתנגן באודיו מורס עם צבעים.',
+    gc3_title:'תרגול אותיות',gc3_desc:'אות אקראית מתנגנת — הקלד את התשובה. בנה רצפים ועקוב אחר הדיוק שלך.',
+    gc4_title:'פענוח מהיר',gc4_desc:'60 שניות. פענח כמה שיותר אותות. המהירות עולה עם כל תשובה נכונה.',
+    gc_play:'שחק ←',gc_locked:'נעול',gc_endless:'אינסופי',
+    practice_correct:'נכון',practice_streak:'רצף',practice_wrong:'שגוי',
+    practice_question:'שאלה',practice_listen:'הקשב ופענח',practice_play:'נגן אות',practice_hint:'רמז',
+    practice_answer:'תשובתך',practice_submit:'בדוק',practice_next:'אות הבא',practice_skip:'דלג',
+    practice_accuracy:'דיוק',practice_best:'רצף מקסימום',practice_total:'סה"כ',practice_mode:'מצב',
+    learn_continue:'המשך ←',learn_back:'← חזור',learn_tap:'הקש לחשיפת מורס · לחץ לשמיעה',
+    learn_tap_flip:'הקש להפוך',learn_play:'נגן צליל',learn_what_letter:'מה האות הזו?',
+    learn_type_letter:'הקלד את האות עבור קוד המורס הזה',learn_your_answer:'תשובתך',
+    learn_type_word:'הקלד את המילה שאתה שומע',learn_play_word:'נגן מילה',
+    learn_complete_title:'שיעור הושלם!',learn_complete_sub:'למדת: {letters}. המשך כך!',
+    learn_new_letters:'אותיות חדשות',learn_total_known:'סה"כ ידוע',learn_all_done:'🏆 סיימת!',
+    learn_next_lesson:'שיעור הבא ←',
+    xw_title:'תשבץ',xw_title2:'מורס',xw_sub:'הקשב לכל רמז במורס ומלא את הרשת.',
+    xw_filled:'מלא',xw_solved:'פתור',xw_time:'זמן',xw_across:'אופקי',xw_down:'אנכי',
+    xw_clues:'רמזים',xw_letters:'אותיות',xw_check:'בדוק תשובות',xw_reveal_letter:'חשוף אות',
+    xw_reveal_word:'חשוף מילה',xw_reset:'אפס',xw_pick_cell:'בחר תחילה תא',xw_pick_word:'בחר תחילה מילה',
+    xw_keep_going:'נכון, המשך!',xw_wrong:'שגוי',xw_win_title:'הפאזל נפתר!',
+    xw_win_sub:'פיענחת כל מילה. כל הכבוד, מפעיל!',xw_hints:'רמזים',xw_plays:'ניגונים',
+    xw_play_again:'שחק שוב',xw_more_games:'עוד משחקים',xw_reset_confirm:'לאפס את כל הפאזל?',
+    wl_title:'וורדל',wl_title2:'מורס',wl_sub:'נחש מילה בת 5 אותיות ב-6 ניסיונות. כל ניחוש מתנגן במורס.',
+    wl_replay:'נגן שוב את הניחוש האחרון',wl_new:'מילה חדשה',wl_how:'איך משחקים',
+    wl_guess:'נחש את',wl_word:'המילה בת 5 האותיות',wl_in6:'ב-6 ניסיונות.',
+    wl_after:'אחרי כל ניחוש, האריחים מתהפכים והמילה מתנגנת במורס.',
+    wl_colors:'צבעי האריחים',wl_green:'ירוק',wl_green2:'— אות נכונה במיקום הנכון.',
+    wl_gold:'זהב',wl_gold2:'— האות קיימת אך במיקום שגוי.',wl_gray:'אפור',wl_gray2:'— האות לא במילה.',
+    wl_gotit:'הבנתי',wl_new_word:'מילה חדשה',wl_played:'שיחקתי',wl_win_pct:'% ניצחון',wl_streak_lbl:'רצף',wl_best:'מקסימום',
+    wl_solved:['מבריק!','כל הכבוד!','מדהים!'],wl_lost:'האות אבד',
+    wl_decoded:'פיענחת בצורה יפה, מפעיל.',wl_word_was:'המילה הייתה: ',
+    clue1:'שמואל ___, חלוץ הטלגרף',clue2:'מכשיר שידור אלחוטי',clue3:'מערכת של אותות',
+    clue4:'אות מורס ארוך (−)',clue5:'___ רדיו, צורת תדר',clue6:'קריאת מצוקה',clue7:'מפעיל רדיו ___',
+    lesson1_name:'האותות הראשונים שלך',lesson1_sub:'האותות הפשוטים ביותר: E היא נקודה אחת, T הוא מקף אחד.',
+    lesson2_name:'הוספת I ו-A',lesson2_sub:'קודים דו-סימניים. בניה על E ו-T.',
+    lesson3_name:'N ו-M',lesson3_sub:'תמונות ראי של I ו-A.',
+    lesson4_name:'S ו-O',lesson4_sub:'צירוף SOS המפורסם — ···  −−−  ···',
+    lesson5_name:'R, U, D, K',lesson5_sub:'תבניות ארוכות יותר מתחילות כאן.',
+    lesson6_name:'G, W, B, C',lesson6_sub:'קודים מורכבים יותר בארבעה סימנים.',
+    lesson7_name:'H, V, F, L',lesson7_sub:'אותיות בארבעה סימנים — התמקד בקצב.',
+    lesson8_name:'האותות האחרונות',lesson8_sub:'הקבוצה האחרונה — כמעט סיימת!',
+    fb_correct:['מושלם.','בול.','מעולה!','כל הכבוד.'],
+    fb_wrong:['לא בדיוק.','קרוב.','כמעט.'],
+    fb_correct_label:'נכון:',
+    footer_tagline:'הדרך המודרנית ללמוד את קוד התקשורת המפורסם בעולם.',
+    demo_msg_label:'ההודעה שלך',
+    known_label:'ידוע',
+    hint_ref:'מילון מורס',
+    xw_pick_clue:'בחר רמז כדי להתחיל',
+    diff_medium:'בינוני',diff_hard:'קשה',diff_easy_hard:'קל ← קשה',
+    gc_endless:'אינסופי',
+    speed_med:'בינוני',
+    practice_playing:'מנגן...',practice_play_again:'נגן שוב',
+    mode_mix:'תמהיל',streak_row:'ברצף',
+    lesson_label:'שיעור',
+    learn_correct_short:'נכון!',learn_answer_label:'תשובה',
+    fb_correct_label_learn:'נכון!',
+    wl_enter_key:'אישור',
+    xw_correct_label:'נכון',
+  },
+  ar:{
+    appTagline:'تعلم شفرة مورس بشكل تفاعلي',hero_title:'تعلم شفرة مورس',hero_title2:'كالمحترفين',
+    hero_sub:'أتقن فن شفرة مورس مع الدروس التفاعلية والتدريب الفوري والتحديات اليومية.',
+    btn_start:'ابدأ التعلم ←',btn_practice:'جرب التدريب',
+    stats_letters:'الحروف والأرقام',stats_games:'الألعاب والأوضاع',stats_lessons:'الدروس',stats_rounds:'جولات التدريب',
+    features_title:'ما بالداخل',features_sub:'كل ما تحتاجه لإتقان المورس',features_sub2:'نظام تعليمي متكامل من أول نقطة حتى الفك الطلق.',
+    f1_title:'تعلم من الصفر',f1_desc:'8 دروس منظمة مع بطاقات تذكر وصوت وتمارين تعرف.',f1_cta:'افتح الدورة ←',
+    f2_title:'وضع التدريب',f2_desc:'إشارات عشوائية تُشغَّل — اكتب الحرف. تتبع السلاسل والدقة.',f2_cta:'افتح التدريب ←',
+    f3_title:'كلمات متقاطعة المورس',f3_desc:'املأ شبكة من 7 كلمات — كل تلميح يُشغَّل بالمورس.',f3_cta:'العب الكلمات المتقاطعة ←',
+    f4_title:'ووردل المورس',f4_desc:'خمّن كلمة من 5 حروف في 6 محاولات مع ردود فعل ملونة.',f4_cta:'العب ووردل ←',
+    demo_title:'عرض تفاعلي',demo_sub:'اكتب رسالة — شاهدها واسمعها بالمورس',demo_play:'شغّل الصوت',
+    speed_slow:'بطيء',speed_normal:'عادي',speed_fast:'سريع',
+    footer_learn:'تعلم',footer_course:'الدورة (8 دروس)',footer_flashcards:'بطاقات الذاكرة',footer_recog:'تمارين التعرف',
+    footer_practice:'تدريب',footer_decode:'وضع فك الشفرة',footer_speed:'مدرب السرعة',
+    footer_games:'الألعاب',footer_all:'كل الألعاب',footer_cross:'كلمات متقاطعة',footer_wordle:'ووردل المورس',footer_drill:'تدريب الحروف',
+    nav_learn:'تعلم',nav_practice:'تدرب',nav_games:'الألعاب',nav_start:'ابدأ التدريب ←',
+    nav_back_home:'الرئيسية ←',nav_back_games:'الألعاب ←',
+    games_badge:'4 ألعاب متاحة',games_title:'تدرب عبر',games_title2:'اللعب.',
+    games_sub:'طوّر مهارات فك الشفرة مع ألعاب مبنية على صوت المورس الحقيقي.',
+    gc_featured:'مميز',gc_new:'جديد',gc_quickplay:'لعب سريع',gc_soon:'قريباً',
+    gc1_title:'كلمات متقاطعة المورس',gc1_desc:'لغز من 7 كلمات متقاطعة. كل تلميح يُشغَّل بالمورس.',
+    gc2_title:'ووردل المورس',gc2_desc:'خمّن كلمة من 5 حروف في 6 محاولات مع صوت المورس.',
+    gc3_title:'تدريب الحروف',gc3_desc:'إشارة عشوائية تُشغَّل — اكتب الإجابة. ابنِ سلاسل وتتبع الدقة.',
+    gc4_title:'فك سريع',gc4_desc:'60 ثانية. افك أكبر عدد من الإشارات. السرعة ترتفع مع كل إجابة صحيحة.',
+    gc_play:'العب ←',gc_locked:'مقفل',gc_endless:'لا نهائي',
+    practice_correct:'صحيح',practice_streak:'سلسلة',practice_wrong:'خطأ',
+    practice_question:'سؤال',practice_listen:'استمع وافك الشفرة',practice_play:'شغّل الإشارة',practice_hint:'تلميح',
+    practice_answer:'إجابتك',practice_submit:'تحقق',practice_next:'الإشارة التالية',practice_skip:'تخطى',
+    practice_accuracy:'الدقة',practice_best:'أفضل سلسلة',practice_total:'المجموع',practice_mode:'الوضع',
+    learn_continue:'متابعة ←',learn_back:'← رجوع',learn_tap:'اضغط للكشف · انقر للسماع',
+    learn_tap_flip:'اضغط للقلب',learn_play:'شغّل الصوت',learn_what_letter:'ما هذا الحرف؟',
+    learn_type_letter:'اكتب الحرف لهذا الرمز',learn_your_answer:'إجابتك',
+    learn_type_word:'اكتب الكلمة التي تسمعها',learn_play_word:'شغّل الكلمة',
+    learn_complete_title:'اكتمل الدرس!',learn_complete_sub:'تعلمت: {letters}. استمر!',
+    learn_new_letters:'حروف جديدة',learn_total_known:'مجموع المعروف',learn_all_done:'🏆 أتممت!',
+    learn_next_lesson:'الدرس التالي ←',
+    xw_title:'كلمات',xw_title2:'متقاطعة مورس',xw_sub:'استمع لكل تلميح بالمورس وامل الشبكة.',
+    xw_filled:'مملوء',xw_solved:'محلول',xw_time:'الوقت',xw_across:'أفقي',xw_down:'رأسي',
+    xw_clues:'التلميحات',xw_letters:'حروف',xw_check:'تحقق من الإجابات',xw_reveal_letter:'اكشف حرفاً',
+    xw_reveal_word:'اكشف كلمة',xw_reset:'إعادة تعيين',xw_pick_cell:'اختر خلية أولاً',xw_pick_word:'اختر كلمة أولاً',
+    xw_keep_going:'صحيح، واصل!',xw_wrong:'خطأ',xw_win_title:'تم حل اللغز!',
+    xw_win_sub:'فككت كل الكلمات. أحسنت!',xw_hints:'تلميحات',xw_plays:'تشغيلات',
+    xw_play_again:'العب مجدداً',xw_more_games:'ألعاب أخرى',xw_reset_confirm:'إعادة تعيين اللغز كله؟',
+    wl_title:'ووردل',wl_title2:'المورس',wl_sub:'خمّن كلمة من 5 حروف في 6 محاولات. كل محاولة تُشغَّل بالمورس.',
+    wl_replay:'أعد تشغيل آخر تخمين',wl_new:'كلمة جديدة',wl_how:'كيف تلعب',
+    wl_guess:'خمّن',wl_word:'الكلمة المكونة من 5 حروف',wl_in6:'في 6 محاولات.',
+    wl_after:'بعد كل تخمين تنقلب المربعات وتُشغَّل الكلمة بالمورس.',
+    wl_colors:'ألوان المربعات',wl_green:'أخضر',wl_green2:'— الحرف في المكان الصحيح.',
+    wl_gold:'ذهبي',wl_gold2:'— الحرف موجود في مكان خاطئ.',wl_gray:'رمادي',wl_gray2:'— الحرف غير موجود.',
+    wl_gotit:'فهمت',wl_new_word:'كلمة جديدة',wl_played:'لعبت',wl_win_pct:'% فوز',wl_streak_lbl:'سلسلة',wl_best:'أفضل',
+    wl_solved:['رائع!','ممتاز!','مذهل!'],wl_lost:'ضاعت الإشارة',
+    wl_decoded:'فككت الشفرة بشكل جيد.',wl_word_was:'الكلمة كانت: ',
+    clue1:'صمويل ___، رائد التلغراف',clue2:'جهاز إرسال لاسلكي',clue3:'نظام من الإشارات',
+    clue4:'إشارة مورس الطويلة (−)',clue5:'___ راديو، شكل التردد',clue6:'نداء استغاثة',clue7:'مشغل راديو ___',
+    lesson1_name:'إشاراتك الأولى',lesson1_sub:'أبسط الإشارات: E نقطة واحدة، T شرطة واحدة.',
+    lesson2_name:'إضافة I و A',lesson2_sub:'رموز ثنائية. بناء على E و T.',
+    lesson3_name:'N و M',lesson3_sub:'صور معكوسة لـ I و A.',
+    lesson4_name:'S و O',lesson4_sub:'تركيبة SOS الشهيرة — ···  −−−  ···',
+    lesson5_name:'R, U, D, K',lesson5_sub:'أنماط أطول تبدأ هنا.',
+    lesson6_name:'G, W, B, C',lesson6_sub:'رموز أكثر تعقيداً.',
+    lesson7_name:'H, V, F, L',lesson7_sub:'حروف بأربعة رموز — ركز على الإيقاع.',
+    lesson8_name:'الحروف الأخيرة',lesson8_sub:'المجموعة الأخيرة — أنت على وشك الانتهاء!',
+    fb_correct:['مثالي.','في الصميم.','ممتاز.','رائع.'],
+    fb_wrong:['ليس تماماً.','قريب.','تقريباً.'],
+    fb_correct_label:'الصواب:',
+    footer_tagline:'الطريقة الحديثة لتعلم أشهر رمز تواصل في العالم.',
+    demo_msg_label:'رسالتك',
+    known_label:'معروف',
+    hint_ref:'مرجع المورس',
+    xw_pick_clue:'اختر تلميحاً للبدء',
+    diff_medium:'متوسط',diff_hard:'صعب',diff_easy_hard:'سهل ← صعب',
+    gc_endless:'لا نهائي',
+    speed_med:'متوسط',
+    practice_playing:'يعزف...',practice_play_again:'شغّل مجدداً',
+    mode_mix:'مختلط',streak_row:'على التوالي',
+    lesson_label:'درس',
+    learn_correct_short:'صحيح!',learn_answer_label:'الإجابة',
+    fb_correct_label_learn:'صحيح!',
+    wl_enter_key:'إدخال',
+    xw_correct_label:'صحيح',
+  },
+};
+
+// Generate simple translations for remaining languages
+function makeLang(code,data){
+  // Merge with English as fallback
+  return Object.assign({},TRANSLATIONS.en,data);
+}
+
+// Add remaining 27 languages with key translations
+const LANG_QUICK={
+  zh:{appTagline:'交互式摩尔斯电码学习',hero_title:'学习摩尔斯电码',hero_title2:'像专业人士',btn_start:'开始学习 →',btn_practice:'试试练习',nav_learn:'学习',nav_practice:'练习',nav_games:'游戏',nav_start:'开始练习 →',nav_back_home:'← 主页',nav_back_games:'← 游戏',demo_play:'播放声音',speed_slow:'慢',speed_normal:'正常',speed_fast:'快',practice_correct:'正确',practice_streak:'连击',practice_wrong:'错误',practice_listen:'听并解码',practice_play:'播放信号',practice_hint:'提示',practice_answer:'你的答案',practice_submit:'检查',practice_next:'下一个信号',practice_skip:'跳过',learn_continue:'继续 →',learn_back:'← 返回',learn_tap:'点击揭示摩尔斯',learn_play:'播放声音',learn_what_letter:'这是什么字母？',learn_type_letter:'输入此摩尔斯码的字母',learn_complete_title:'课程完成！',learn_all_done:'🏆 全部完成！',learn_next_lesson:'下一课 →',xw_check:'检查答案',xw_reveal_letter:'揭示字母',xw_reveal_word:'揭示单词',xw_reset:'重置',xw_play_again:'再玩一次',xw_more_games:'更多游戏',wl_replay:'重播上次猜测',wl_new:'新单词',wl_gotit:'明白了',wl_new_word:'新单词',wl_solved:['太棒了！','做到了！','杰出！'],wl_lost:'信号丢失',wl_word_was:'单词是：',fb_correct:['完美。','正确。','太棒了。','优秀。'],fb_wrong:['不太对。','接近了。','差不多。'],fb_correct_label:'正确：'},
+  es:{appTagline:'Aprendizaje interactivo de código Morse',hero_title:'Aprende Código Morse',hero_title2:'Como un Profesional',btn_start:'Empezar a aprender →',btn_practice:'Probar práctica',nav_learn:'Aprender',nav_practice:'Practicar',nav_games:'Juegos',nav_start:'Empezar práctica →',nav_back_home:'← Inicio',nav_back_games:'← Juegos',demo_play:'Reproducir sonido',speed_slow:'Lento',speed_normal:'Normal',speed_fast:'Rápido',practice_correct:'Correcto',practice_streak:'Racha',practice_wrong:'Incorrecto',practice_listen:'Escucha y descifra',practice_play:'Reproducir señal',practice_hint:'Pista',practice_answer:'Tu respuesta',practice_submit:'Comprobar',practice_next:'Siguiente señal',practice_skip:'Saltar',learn_continue:'Continuar →',learn_back:'← Volver',learn_tap:'Toca para revelar · haz clic para escuchar',learn_play:'Reproducir',learn_what_letter:'¿Qué letra es esta?',learn_type_letter:'Escribe la letra de este código',learn_complete_title:'¡Lección completada!',learn_all_done:'🏆 ¡Todo listo!',learn_next_lesson:'Siguiente lección →',xw_check:'Verificar respuestas',xw_reveal_letter:'Revelar letra',xw_reveal_word:'Revelar palabra',xw_reset:'Reiniciar',xw_play_again:'Jugar de nuevo',xw_more_games:'Más juegos',wl_replay:'Repetir último intento',wl_new:'Nueva palabra',wl_gotit:'Entendido',wl_new_word:'Nueva palabra',wl_solved:['¡Brillante!','¡Lo clavaste!','¡Sobresaliente!'],wl_lost:'Señal perdida',wl_word_was:'La palabra era: ',fb_correct:['Perfecto.','Exacto.','¡Genial!','Excelente.'],fb_wrong:['No exactamente.','Cerca.','Casi.'],fb_correct_label:'Correcto:'},
+  fr:{appTagline:'Apprentissage interactif du code Morse',hero_title:'Apprenez le Code Morse',hero_title2:'Comme un Pro',btn_start:'Commencer →',btn_practice:'Essayer',nav_learn:'Apprendre',nav_practice:'Pratiquer',nav_games:'Jeux',nav_start:'Commencer →',nav_back_home:'← Accueil',nav_back_games:'← Jeux',demo_play:'Jouer le son',speed_slow:'Lent',speed_normal:'Normal',speed_fast:'Rapide',practice_correct:'Correct',practice_streak:'Série',practice_wrong:'Incorrect',practice_listen:'Écoute et décode',practice_play:'Jouer le signal',practice_hint:'Indice',practice_answer:'Ta réponse',practice_submit:'Vérifier',practice_next:'Signal suivant',practice_skip:'Passer',learn_continue:'Continuer →',learn_back:'← Retour',learn_tap:'Appuyez pour révéler',learn_play:'Jouer',learn_what_letter:'Quelle est cette lettre?',learn_type_letter:'Tape la lettre pour ce code',learn_complete_title:'Leçon terminée!',learn_all_done:'🏆 Tout fini!',learn_next_lesson:'Leçon suivante →',xw_check:'Vérifier',xw_reveal_letter:'Révéler lettre',xw_reveal_word:'Révéler mot',xw_reset:'Réinitialiser',xw_play_again:'Rejouer',xw_more_games:'Plus de jeux',wl_replay:'Rejouer dernier essai',wl_new:'Nouveau mot',wl_gotit:'Compris',wl_new_word:'Nouveau mot',wl_solved:['Brillant!','Parfait!','Excellent!'],wl_lost:'Signal perdu',wl_word_was:'Le mot était: ',fb_correct:['Parfait.','Exact.','Bravo.','Excellent.'],fb_wrong:['Pas tout à fait.','Proche.','Presque.'],fb_correct_label:'Correct:'},
+  de:{appTagline:'Interaktives Morsecode-Lernen',hero_title:'Lerne Morsecode',hero_title2:'Wie ein Profi',btn_start:'Lernen starten →',btn_practice:'Übung ausprobieren',nav_learn:'Lernen',nav_practice:'Üben',nav_games:'Spiele',nav_start:'Übung starten →',nav_back_home:'← Startseite',nav_back_games:'← Spiele',demo_play:'Sound abspielen',speed_slow:'Langsam',speed_normal:'Normal',speed_fast:'Schnell',practice_correct:'Richtig',practice_streak:'Serie',practice_wrong:'Falsch',practice_listen:'Hören und entschlüsseln',practice_play:'Signal abspielen',practice_hint:'Hinweis',practice_answer:'Deine Antwort',practice_submit:'Prüfen',practice_next:'Nächstes Signal',practice_skip:'Überspringen',learn_continue:'Weiter →',learn_back:'← Zurück',learn_tap:'Tippen zum Aufdecken',learn_play:'Abspielen',learn_what_letter:'Was ist dieser Buchstabe?',learn_type_letter:'Gib den Buchstaben ein',learn_complete_title:'Lektion abgeschlossen!',learn_all_done:'🏆 Alles fertig!',learn_next_lesson:'Nächste Lektion →',xw_check:'Antworten prüfen',xw_reveal_letter:'Buchstaben aufdecken',xw_reveal_word:'Wort aufdecken',xw_reset:'Zurücksetzen',xw_play_again:'Nochmal spielen',xw_more_games:'Mehr Spiele',wl_replay:'Letzten Versuch wiederholen',wl_new:'Neues Wort',wl_gotit:'Verstanden',wl_new_word:'Neues Wort',wl_solved:['Brillant!','Getroffen!','Hervorragend!'],wl_lost:'Signal verloren',wl_word_was:'Das Wort war: ',fb_correct:['Perfekt.','Genau.','Super.','Ausgezeichnet.'],fb_wrong:['Nicht ganz.','Nah dran.','Fast.'],fb_correct_label:'Richtig:'},
+  pt:{appTagline:'Aprendizado interativo de código Morse',hero_title:'Aprenda Código Morse',hero_title2:'Como um Profissional',btn_start:'Começar a aprender →',btn_practice:'Tentar prática',nav_learn:'Aprender',nav_practice:'Praticar',nav_games:'Jogos',nav_start:'Começar prática →',nav_back_home:'← Início',nav_back_games:'← Jogos',demo_play:'Reproduzir som',speed_slow:'Lento',speed_normal:'Normal',speed_fast:'Rápido',practice_correct:'Correto',practice_streak:'Sequência',practice_wrong:'Errado',practice_listen:'Ouça e decodifique',practice_play:'Reproduzir sinal',practice_hint:'Dica',practice_answer:'Sua resposta',practice_submit:'Verificar',practice_next:'Próximo sinal',practice_skip:'Pular',learn_continue:'Continuar →',learn_back:'← Voltar',learn_tap:'Toque para revelar',learn_play:'Reproduzir',learn_what_letter:'Qual é esta letra?',learn_type_letter:'Digite a letra deste código',learn_complete_title:'Lição concluída!',learn_all_done:'🏆 Tudo concluído!',learn_next_lesson:'Próxima lição →',xw_check:'Verificar respostas',xw_reveal_letter:'Revelar letra',xw_reveal_word:'Revelar palavra',xw_reset:'Reiniciar',xw_play_again:'Jogar novamente',xw_more_games:'Mais jogos',wl_replay:'Repetir último palpite',wl_new:'Nova palavra',wl_gotit:'Entendi',wl_new_word:'Nova palavra',wl_solved:['Brilhante!','Acertou!','Excelente!'],wl_lost:'Sinal perdido',wl_word_was:'A palavra era: ',fb_correct:['Perfeito.','Exato.','Ótimo.','Excelente.'],fb_wrong:['Não exatamente.','Perto.','Quase.'],fb_correct_label:'Correto:'},
+  ru:{appTagline:'Интерактивное обучение азбуке Морзе',hero_title:'Изучай азбуку Морзе',hero_title2:'Как профессионал',btn_start:'Начать учиться →',btn_practice:'Попробовать',nav_learn:'Учиться',nav_practice:'Практика',nav_games:'Игры',nav_start:'Начать практику →',nav_back_home:'← Главная',nav_back_games:'← Игры',demo_play:'Воспроизвести',speed_slow:'Медленно',speed_normal:'Нормально',speed_fast:'Быстро',practice_correct:'Верно',practice_streak:'Серия',practice_wrong:'Неверно',practice_listen:'Слушай и декодируй',practice_play:'Воспроизвести сигнал',practice_hint:'Подсказка',practice_answer:'Твой ответ',practice_submit:'Проверить',practice_next:'Следующий сигнал',practice_skip:'Пропустить',learn_continue:'Продолжить →',learn_back:'← Назад',learn_tap:'Нажми чтобы открыть',learn_play:'Воспроизвести',learn_what_letter:'Что это за буква?',learn_type_letter:'Введи букву для этого кода',learn_complete_title:'Урок завершён!',learn_all_done:'🏆 Всё готово!',learn_next_lesson:'Следующий урок →',xw_check:'Проверить ответы',xw_reveal_letter:'Открыть букву',xw_reveal_word:'Открыть слово',xw_reset:'Сброс',xw_play_again:'Играть снова',xw_more_games:'Больше игр',wl_replay:'Повторить',wl_new:'Новое слово',wl_gotit:'Понял',wl_new_word:'Новое слово',wl_solved:['Блестяще!','Отлично!','Превосходно!'],wl_lost:'Сигнал потерян',wl_word_was:'Слово было: ',fb_correct:['Идеально.','Точно.','Отлично.','Превосходно.'],fb_wrong:['Не совсем.','Близко.','Почти.'],fb_correct_label:'Верно:'},
+  ja:{appTagline:'モールス符号インタラクティブ学習',hero_title:'モールス符号を学ぼう',hero_title2:'プロのように',btn_start:'学習を始める →',btn_practice:'練習を試す',nav_learn:'学習',nav_practice:'練習',nav_games:'ゲーム',nav_start:'練習を始める →',nav_back_home:'← ホーム',nav_back_games:'← ゲーム',demo_play:'音を再生',speed_slow:'ゆっくり',speed_normal:'普通',speed_fast:'速い',practice_correct:'正解',practice_streak:'連続',practice_wrong:'不正解',practice_listen:'聞いてデコード',practice_play:'信号を再生',practice_hint:'ヒント',practice_answer:'あなたの答え',practice_submit:'確認',practice_next:'次の信号',practice_skip:'スキップ',learn_continue:'続ける →',learn_back:'← 戻る',learn_tap:'タップして表示',learn_play:'再生',learn_what_letter:'この文字は何？',learn_type_letter:'このコードの文字を入力',learn_complete_title:'レッスン完了！',learn_all_done:'🏆 全完了！',learn_next_lesson:'次のレッスン →',xw_check:'答えを確認',xw_reveal_letter:'文字を表示',xw_reveal_word:'単語を表示',xw_reset:'リセット',xw_play_again:'もう一度',xw_more_games:'他のゲーム',wl_replay:'最後の推測を再生',wl_new:'新しい単語',wl_gotit:'了解',wl_new_word:'新しい単語',wl_solved:['素晴らしい！','やった！','優秀！'],wl_lost:'信号喪失',wl_word_was:'単語は: ',fb_correct:['完璧。','正確。','すごい。','優秀。'],fb_wrong:['違います。','近い。','ほぼ正解。'],fb_correct_label:'正解:'},
+  ko:{appTagline:'인터랙티브 모스 부호 학습',hero_title:'모스 부호 배우기',hero_title2:'프로처럼',btn_start:'학습 시작 →',btn_practice:'연습 해보기',nav_learn:'학습',nav_practice:'연습',nav_games:'게임',nav_start:'연습 시작 →',nav_back_home:'← 홈',nav_back_games:'← 게임',demo_play:'소리 재생',speed_slow:'느리게',speed_normal:'보통',speed_fast:'빠르게',practice_correct:'정답',practice_streak:'연속',practice_wrong:'오답',practice_listen:'듣고 해독하기',practice_play:'신호 재생',practice_hint:'힌트',practice_answer:'내 답',practice_submit:'확인',practice_next:'다음 신호',practice_skip:'건너뛰기',learn_continue:'계속 →',learn_back:'← 뒤로',learn_tap:'탭하여 공개',learn_play:'재생',learn_what_letter:'이 글자는 무엇인가요?',learn_type_letter:'이 코드의 글자를 입력하세요',learn_complete_title:'레슨 완료!',learn_all_done:'🏆 모두 완료!',learn_next_lesson:'다음 레슨 →',xw_check:'답 확인',xw_reveal_letter:'글자 공개',xw_reveal_word:'단어 공개',xw_reset:'초기화',xw_play_again:'다시 하기',xw_more_games:'더 많은 게임',wl_replay:'마지막 추측 재생',wl_new:'새 단어',wl_gotit:'알겠어요',wl_new_word:'새 단어',wl_solved:['훌륭해!','맞혔어!','뛰어나!'],wl_lost:'신호 손실',wl_word_was:'단어는: ',fb_correct:['완벽해.','정확해.','잘했어.','우수해.'],fb_wrong:['아직이야.','가까워.','거의야.'],fb_correct_label:'정답:'},
+  hi:{appTagline:'इंटरैक्टिव मोर्स कोड सीखना',hero_title:'मोर्स कोड सीखें',hero_title2:'एक प्रो की तरह',btn_start:'सीखना शुरू करें →',btn_practice:'अभ्यास आजमाएं',nav_learn:'सीखें',nav_practice:'अभ्यास',nav_games:'खेल',nav_start:'अभ्यास शुरू करें →',nav_back_home:'← होम',nav_back_games:'← खेल',demo_play:'ध्वनि बजाएं',speed_slow:'धीमा',speed_normal:'सामान्य',speed_fast:'तेज',practice_correct:'सही',practice_streak:'श्रृंखला',practice_wrong:'गलत',practice_listen:'सुनें और डिकोड करें',practice_play:'संकेत बजाएं',practice_hint:'संकेत',practice_answer:'आपका उत्तर',practice_submit:'जांचें',practice_next:'अगला संकेत',practice_skip:'छोड़ें',learn_continue:'जारी रखें →',learn_back:'← वापस',learn_tap:'प्रकट करने के लिए टैप करें',learn_play:'बजाएं',learn_what_letter:'यह कौन सा अक्षर है?',learn_type_letter:'इस कोड का अक्षर टाइप करें',learn_complete_title:'पाठ पूरा!',learn_all_done:'🏆 सब हो गया!',learn_next_lesson:'अगला पाठ →',xw_check:'उत्तर जांचें',xw_reveal_letter:'अक्षर दिखाएं',xw_reveal_word:'शब्द दिखाएं',xw_reset:'रीसेट',xw_play_again:'फिर खेलें',xw_more_games:'और खेल',wl_replay:'पिछला अनुमान दोबारा',wl_new:'नया शब्द',wl_gotit:'समझ गया',wl_new_word:'नया शब्द',wl_solved:['शानदार!','बढ़िया!','उत्कृष्ट!'],wl_lost:'संकेत खो गया',wl_word_was:'शब्द था: ',fb_correct:['परफेक्ट.','बिल्कुल सही.','शाबाश.','उत्कृष्ट.'],fb_wrong:['बिल्कुल नहीं.','करीब.','लगभग.'],fb_correct_label:'सही:'},
+  tr:{appTagline:'İnteraktif Mors Kodu Öğrenimi',hero_title:'Mors Kodunu Öğren',hero_title2:'Bir Profesyonel Gibi',btn_start:'Öğrenmeye Başla →',btn_practice:'Pratiği Dene',nav_learn:'Öğren',nav_practice:'Pratik',nav_games:'Oyunlar',nav_start:'Pratiği Başlat →',nav_back_home:'← Ana Sayfa',nav_back_games:'← Oyunlar',demo_play:'Sesi Çal',speed_slow:'Yavaş',speed_normal:'Normal',speed_fast:'Hızlı',practice_correct:'Doğru',practice_streak:'Seri',practice_wrong:'Yanlış',practice_listen:'Dinle ve çöz',practice_play:'Sinyali çal',practice_hint:'İpucu',practice_answer:'Cevabın',practice_submit:'Kontrol et',practice_next:'Sonraki sinyal',practice_skip:'Atla',learn_continue:'Devam Et →',learn_back:'← Geri',learn_tap:'Görmek için dokun',learn_play:'Çal',learn_what_letter:'Bu hangi harf?',learn_type_letter:'Bu kod için harfi yaz',learn_complete_title:'Ders Tamamlandı!',learn_all_done:'🏆 Hepsi Bitti!',learn_next_lesson:'Sonraki Ders →',xw_check:'Cevapları Kontrol Et',xw_reveal_letter:'Harfi Göster',xw_reveal_word:'Kelimeyi Göster',xw_reset:'Sıfırla',xw_play_again:'Tekrar Oyna',xw_more_games:'Daha Fazla Oyun',wl_replay:'Son Tahmini Tekrar Çal',wl_new:'Yeni Kelime',wl_gotit:'Anladım',wl_new_word:'Yeni Kelime',wl_solved:['Harika!','Tutturdu!','Mükemmel!'],wl_lost:'Sinyal Kayboldu',wl_word_was:'Kelime şuydu: ',fb_correct:['Mükemmel.','Kesinlikle.','Süper.','Harika.'],fb_wrong:['Tam değil.','Yakın.','Neredeyse.'],fb_correct_label:'Doğru:'},
+  it:{appTagline:'Apprendimento interattivo del codice Morse',hero_title:'Impara il Codice Morse',hero_title2:'Come un Professionista',btn_start:'Inizia a imparare →',btn_practice:'Prova la pratica',nav_learn:'Impara',nav_practice:'Pratica',nav_games:'Giochi',nav_start:'Inizia pratica →',nav_back_home:'← Home',nav_back_games:'← Giochi',demo_play:'Riproduci suono',speed_slow:'Lento',speed_normal:'Normale',speed_fast:'Veloce',practice_correct:'Corretto',practice_streak:'Serie',practice_wrong:'Errato',practice_listen:'Ascolta e decodifica',practice_play:'Riproduci segnale',practice_hint:'Suggerimento',practice_answer:'La tua risposta',practice_submit:'Controlla',practice_next:'Segnale successivo',practice_skip:'Salta',learn_continue:'Continua →',learn_back:'← Indietro',learn_tap:'Tocca per rivelare',learn_play:'Riproduci',learn_what_letter:'Che lettera è questa?',learn_type_letter:'Digita la lettera per questo codice',learn_complete_title:'Lezione completata!',learn_all_done:'🏆 Tutto fatto!',learn_next_lesson:'Prossima lezione →',xw_check:'Controlla risposte',xw_reveal_letter:'Rivela lettera',xw_reveal_word:'Rivela parola',xw_reset:'Reimposta',xw_play_again:'Gioca ancora',xw_more_games:'Altri giochi',wl_replay:'Ripeti ultimo tentativo',wl_new:'Nuova parola',wl_gotit:'Capito',wl_new_word:'Nuova parola',wl_solved:['Brillante!','Perfetto!','Eccellente!'],wl_lost:'Segnale perso',wl_word_was:'La parola era: ',fb_correct:['Perfetto.','Esatto.','Bravo.','Eccellente.'],fb_wrong:['Non esattamente.','Vicino.','Quasi.'],fb_correct_label:'Corretto:'},
+};
+// remaining langs - minimal keys, fallback to english
+['pl','nl','uk','id','vi','th','fa','sv','cs','ro','el','hu','da','fi','no','bn'].forEach(code=>{
+  const m={pl:{nav_learn:'Ucz się',nav_practice:'Ćwicz',nav_games:'Gry',btn_start:'Zacznij uczyć się →',demo_play:'Odtwórz dźwięk',speed_slow:'Wolno',speed_normal:'Normalnie',speed_fast:'Szybko',practice_correct:'Poprawnie',practice_wrong:'Błędnie',practice_streak:'Seria',practice_submit:'Sprawdź',practice_next:'Następny sygnał',practice_skip:'Pomiń',learn_continue:'Kontynuuj →',learn_back:'← Wstecz',xw_play_again:'Zagraj ponownie',wl_gotit:'Rozumiem',wl_solved:['Świetnie!','Trafił!','Doskonale!'],wl_word_was:'Słowo to: '},
+  nl:{nav_learn:'Leren',nav_practice:'Oefenen',nav_games:'Spellen',btn_start:'Begin met leren →',demo_play:'Geluid afspelen',speed_slow:'Langzaam',speed_normal:'Normaal',speed_fast:'Snel',practice_correct:'Correct',practice_wrong:'Fout',practice_streak:'Serie',practice_submit:'Controleer',practice_next:'Volgende signaal',practice_skip:'Overslaan',learn_continue:'Doorgaan →',learn_back:'← Terug',xw_play_again:'Opnieuw spelen',wl_gotit:'Begrepen',wl_solved:['Schitterend!','Raak!','Uitstekend!'],wl_word_was:'Het woord was: '},
+  uk:{nav_learn:'Вчитися',nav_practice:'Практика',nav_games:'Ігри',btn_start:'Почати вчитися →',demo_play:'Відтворити',speed_slow:'Повільно',speed_normal:'Нормально',speed_fast:'Швидко',practice_correct:'Вірно',practice_wrong:'Невірно',practice_streak:'Серія',practice_submit:'Перевірити',practice_next:'Наступний сигнал',practice_skip:'Пропустити',learn_continue:'Продовжити →',learn_back:'← Назад',xw_play_again:'Грати знову',wl_gotit:'Зрозумів',wl_solved:['Блискуче!','Вдало!','Чудово!'],wl_word_was:'Слово було: '},
+  id:{nav_learn:'Belajar',nav_practice:'Latihan',nav_games:'Permainan',btn_start:'Mulai belajar →',demo_play:'Putar suara',speed_slow:'Lambat',speed_normal:'Normal',speed_fast:'Cepat',practice_correct:'Benar',practice_wrong:'Salah',practice_streak:'Rangkaian',practice_submit:'Periksa',practice_next:'Sinyal berikutnya',practice_skip:'Lewati',learn_continue:'Lanjutkan →',learn_back:'← Kembali',xw_play_again:'Main lagi',wl_gotit:'Mengerti',wl_solved:['Luar biasa!','Tepat!','Sangat baik!'],wl_word_was:'Kata itu: '},
+  vi:{nav_learn:'Học',nav_practice:'Thực hành',nav_games:'Trò chơi',btn_start:'Bắt đầu học →',demo_play:'Phát âm thanh',speed_slow:'Chậm',speed_normal:'Bình thường',speed_fast:'Nhanh',practice_correct:'Đúng',practice_wrong:'Sai',practice_streak:'Chuỗi',practice_submit:'Kiểm tra',practice_next:'Tín hiệu tiếp theo',practice_skip:'Bỏ qua',learn_continue:'Tiếp tục →',learn_back:'← Quay lại',xw_play_again:'Chơi lại',wl_gotit:'Hiểu rồi',wl_solved:['Xuất sắc!','Đúng rồi!','Tuyệt vời!'],wl_word_was:'Từ là: '},
+  th:{nav_learn:'เรียน',nav_practice:'ฝึก',nav_games:'เกม',btn_start:'เริ่มเรียน →',demo_play:'เล่นเสียง',speed_slow:'ช้า',speed_normal:'ปกติ',speed_fast:'เร็ว',practice_correct:'ถูก',practice_wrong:'ผิด',practice_streak:'ต่อเนื่อง',practice_submit:'ตรวจ',practice_next:'สัญญาณถัดไป',practice_skip:'ข้าม',learn_continue:'ต่อไป →',learn_back:'← กลับ',xw_play_again:'เล่นอีก',wl_gotit:'เข้าใจแล้ว',wl_solved:['ยอดเยี่ยม!','ถูกต้อง!','เก่งมาก!'],wl_word_was:'คำคือ: '},
+  fa:{nav_learn:'یادگیری',nav_practice:'تمرین',nav_games:'بازی‌ها',btn_start:'← شروع یادگیری',demo_play:'پخش صدا',speed_slow:'کند',speed_normal:'عادی',speed_fast:'سریع',practice_correct:'درست',practice_wrong:'اشتباه',practice_streak:'زنجیره',practice_submit:'بررسی',practice_next:'سیگنال بعدی',practice_skip:'رد کردن',learn_continue:'← ادامه',learn_back:'برگشت →',xw_play_again:'دوباره بازی',wl_gotit:'متوجه شدم',wl_solved:['عالی!','درست!','فوق‌العاده!'],wl_word_was:'کلمه: '},
+  sv:{nav_learn:'Lär dig',nav_practice:'Öva',nav_games:'Spel',btn_start:'Börja lära →',demo_play:'Spela ljud',speed_slow:'Långsamt',speed_normal:'Normal',speed_fast:'Snabbt',practice_correct:'Rätt',practice_wrong:'Fel',practice_streak:'Serie',practice_submit:'Kontrollera',practice_next:'Nästa signal',practice_skip:'Hoppa över',learn_continue:'Fortsätt →',learn_back:'← Tillbaka',xw_play_again:'Spela igen',wl_gotit:'Förstått',wl_solved:['Briljant!','Träffat!','Utmärkt!'],wl_word_was:'Ordet var: '},
+  cs:{nav_learn:'Učit se',nav_practice:'Cvičit',nav_games:'Hry',btn_start:'Začít učit →',demo_play:'Přehrát zvuk',speed_slow:'Pomalu',speed_normal:'Normálně',speed_fast:'Rychle',practice_correct:'Správně',practice_wrong:'Špatně',practice_streak:'Série',practice_submit:'Zkontrolovat',practice_next:'Další signál',practice_skip:'Přeskočit',learn_continue:'Pokračovat →',learn_back:'← Zpět',xw_play_again:'Hrát znovu',wl_gotit:'Rozumím',wl_solved:['Skvěle!','Trefil!','Výborně!'],wl_word_was:'Slovo bylo: '},
+  ro:{nav_learn:'Învăță',nav_practice:'Practică',nav_games:'Jocuri',btn_start:'Începe să înveți →',demo_play:'Redă sunet',speed_slow:'Lent',speed_normal:'Normal',speed_fast:'Rapid',practice_correct:'Corect',practice_wrong:'Greșit',practice_streak:'Serie',practice_submit:'Verifică',practice_next:'Semnalul următor',practice_skip:'Sari',learn_continue:'Continuă →',learn_back:'← Înapoi',xw_play_again:'Joacă din nou',wl_gotit:'Am înțeles',wl_solved:['Strălucit!','Reușit!','Excelent!'],wl_word_was:'Cuvântul era: '},
+  el:{nav_learn:'Μάθε',nav_practice:'Εξάσκηση',nav_games:'Παιχνίδια',btn_start:'Ξεκίνα να μαθαίνεις →',demo_play:'Αναπαραγωγή ήχου',speed_slow:'Αργά',speed_normal:'Κανονικά',speed_fast:'Γρήγορα',practice_correct:'Σωστό',practice_wrong:'Λάθος',practice_streak:'Σειρά',practice_submit:'Έλεγχος',practice_next:'Επόμενο σήμα',practice_skip:'Παράλειψη',learn_continue:'Συνέχεια →',learn_back:'← Πίσω',xw_play_again:'Παίξε ξανά',wl_gotit:'Κατάλαβα',wl_solved:['Εκπληκτικό!','Σωστό!','Εξαιρετικό!'],wl_word_was:'Η λέξη ήταν: '},
+  hu:{nav_learn:'Tanulj',nav_practice:'Gyakorolj',nav_games:'Játékok',btn_start:'Tanulás kezdése →',demo_play:'Hang lejátszása',speed_slow:'Lassan',speed_normal:'Normál',speed_fast:'Gyorsan',practice_correct:'Helyes',practice_wrong:'Helytelen',practice_streak:'Sorozat',practice_submit:'Ellenőrzés',practice_next:'Következő jel',practice_skip:'Kihagyás',learn_continue:'Folytatás →',learn_back:'← Vissza',xw_play_again:'Játssz újra',wl_gotit:'Értettem',wl_solved:['Brilliáns!','Eltalálta!','Kiváló!'],wl_word_was:'A szó: '},
+  da:{nav_learn:'Lær',nav_practice:'Øv',nav_games:'Spil',btn_start:'Begynd at lære →',demo_play:'Afspil lyd',speed_slow:'Langsomt',speed_normal:'Normal',speed_fast:'Hurtigt',practice_correct:'Rigtigt',practice_wrong:'Forkert',practice_streak:'Serie',practice_submit:'Tjek',practice_next:'Næste signal',practice_skip:'Spring over',learn_continue:'Fortsæt →',learn_back:'← Tilbage',xw_play_again:'Spil igen',wl_gotit:'Forstået',wl_solved:['Fremragende!','Ramt!','Udmærket!'],wl_word_was:'Ordet var: '},
+  fi:{nav_learn:'Opi',nav_practice:'Harjoittele',nav_games:'Pelit',btn_start:'Aloita oppiminen →',demo_play:'Toista ääni',speed_slow:'Hitaasti',speed_normal:'Normaalisti',speed_fast:'Nopeasti',practice_correct:'Oikein',practice_wrong:'Väärin',practice_streak:'Sarja',practice_submit:'Tarkista',practice_next:'Seuraava signaali',practice_skip:'Ohita',learn_continue:'Jatka →',learn_back:'← Takaisin',xw_play_again:'Pelaa uudelleen',wl_gotit:'Ymmärsin',wl_solved:['Loistava!','Osui!','Erinomainen!'],wl_word_was:'Sana oli: '},
+  no:{nav_learn:'Lær',nav_practice:'Øv',nav_games:'Spill',btn_start:'Begynn å lære →',demo_play:'Spill av lyd',speed_slow:'Sakte',speed_normal:'Normal',speed_fast:'Raskt',practice_correct:'Riktig',practice_wrong:'Feil',practice_streak:'Serie',practice_submit:'Sjekk',practice_next:'Neste signal',practice_skip:'Hopp over',learn_continue:'Fortsett →',learn_back:'← Tilbake',xw_play_again:'Spill igjen',wl_gotit:'Forstått',wl_solved:['Strålende!','Truffet!','Utmerket!'],wl_word_was:'Ordet var: '},
+  bn:{nav_learn:'শিখুন',nav_practice:'অনুশীলন',nav_games:'খেলা',btn_start:'শেখা শুরু করুন →',demo_play:'শব্দ চালান',speed_slow:'ধীর',speed_normal:'স্বাভাবিক',speed_fast:'দ্রুত',practice_correct:'সঠিক',practice_wrong:'ভুল',practice_streak:'ধারা',practice_submit:'যাচাই',practice_next:'পরবর্তী সংকেত',practice_skip:'এড়িয়ে যান',learn_continue:'চালিয়ে যান →',learn_back:'← ফিরে',xw_play_again:'আবার খেলুন',wl_gotit:'বুঝলাম',wl_solved:['চমৎকার!','সঠিক!','অসাধারণ!'],wl_word_was:'শব্দটি ছিল: '},
+  }[code]||{};
+  LANG_QUICK[code]=m;
+});
+
+// Merge all languages
+LANGUAGES.forEach(lang=>{
+  if(!TRANSLATIONS[lang.code]){
+    TRANSLATIONS[lang.code]=Object.assign({},TRANSLATIONS.en,LANG_QUICK[lang.code]||{});
+  }
+});
+
+let currentLang='en';
+function t(key,vars){
+  const tr=TRANSLATIONS[currentLang]||TRANSLATIONS.en;
+  let val=tr[key]!==undefined?tr[key]:(TRANSLATIONS.en[key]||key);
+  if(vars&&typeof val==='string'){Object.keys(vars).forEach(k=>{val=val.replace('{'+k+'}',vars[k]);});}
+  return val;
+}
+function isRTL(){return !!(LANGUAGES.find(l=>l.code===currentLang)?.rtl);}
+function setLanguage(code){
+  currentLang=code;
+  document.documentElement.lang=code;
+  document.documentElement.dir=isRTL()?'rtl':'ltr';
+  applyTranslations();
+  updateNav(currentPage);
+  // Re-render dynamic page content
+  if(currentPage==='practice'&&practiceInited)refreshPracticeUI();
+  if(currentPage==='crossword'&&crosswordInited)refreshCrosswordUI();
+  if(currentPage==='learn'&&learnInited)refreshLearnUI();
+  if(currentPage==='wordle'&&wordleInited)refreshWordleUI();
+  closeLangDropdown();
+}
+function applyTranslations(){
+  // Static HTML elements with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    const val=t(key);
+    if(typeof val==='string')el.textContent=val;
+  });
+  // RTL
+  document.documentElement.dir=isRTL()?'rtl':'ltr';
+  // Dynamic practice labels (HUD)
+  const hudLabels=[['hud-cell correct .hud-label','practice_correct'],['hud-cell streak .hud-label','practice_streak'],['hud-cell wrong .hud-label','practice_wrong']];
+  hudLabels.forEach(([sel,key])=>{const el=document.querySelector('.'+sel);if(el)el.textContent=t(key);});
+  // Learn nav buttons
+  const lback=document.getElementById('lbackBtn');
+  const lnext=document.getElementById('lnextBtn');
+  if(lback)lback.textContent=t('learn_back');
+  if(lnext)lnext.textContent=lnext.classList.contains('lbtn-next')?t('learn_next_lesson'):t('learn_continue');
+}
+
+// ── Language Dropdown ──
+let langDropdownOpen=false;
+function buildLangDropdown(){
+  const existing=document.getElementById('langDropdown');
+  if(existing)existing.remove();
+  const dropdown=document.createElement('div');
+  dropdown.className='lang-dropdown';dropdown.id='langDropdown';
+  dropdown.innerHTML=`<div class="lang-search-wrap"><input class="lang-search" id="langSearch" placeholder="Search languages..." autocomplete="off"></div><div class="lang-list" id="langList"></div>`;
+  const list=dropdown.querySelector('#langList');
+  LANGUAGES.forEach(lang=>{
+    const item=document.createElement('div');item.className='lang-item'+(lang.code===currentLang?' active':'');
+    item.innerHTML=`<span class="lang-item-flag">${lang.flag}</span><span class="lang-item-name">${lang.name}</span><span class="lang-item-native">${lang.native}</span>`;
+    item.addEventListener('click',()=>setLanguage(lang.code));
+    list.appendChild(item);
+  });
+  dropdown.querySelector('#langSearch').addEventListener('input',function(){
+    const q=this.value.toLowerCase();
+    list.querySelectorAll('.lang-item').forEach((item,i)=>{
+      const lang=LANGUAGES[i];
+      item.classList.toggle('hidden',!(lang.name.toLowerCase().includes(q)||lang.native.toLowerCase().includes(q)));
+    });
+  });
+  return dropdown;
+}
+function openLangDropdown(btn){
+  closeLangDropdown();
+  const dd=buildLangDropdown();
+  btn.parentElement.style.position='relative';
+  btn.parentElement.appendChild(dd);
+  langDropdownOpen=true;
+  btn.classList.add('open');
+  setTimeout(()=>dd.querySelector('#langSearch').focus(),50);
+  setTimeout(()=>document.addEventListener('click',closeLangOnOutside),10);
+}
+function closeLangDropdown(){
+  const dd=document.getElementById('langDropdown');if(dd)dd.remove();
+  langDropdownOpen=false;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('open'));
+  document.removeEventListener('click',closeLangOnOutside);
+}
+function closeLangOnOutside(e){if(!e.target.closest('.lang-btn')&&!e.target.closest('.lang-dropdown'))closeLangDropdown();}
+function getLangBtn(){
+  const cur=LANGUAGES.find(l=>l.code===currentLang);
+  return `<button class="lang-btn" onclick="event.stopPropagation();this.classList.contains('open')?closeLangDropdown():openLangDropdown(this)" title="Select language"><span class="lang-flag">${cur.flag}</span><span style="max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cur.name}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+}
+
 function updateNav(page){
   const nr=document.getElementById('navRight');
+  const langBtn=getLangBtn();
   if(page==='home'){
-    nr.innerHTML=`<div class="home-nav-links"><button onclick="navigate('learn')">Learn</button><button onclick="navigate('practice')">Practice</button><button onclick="navigate('games')">Games</button></div><button class="nav-cta" onclick="navigate('practice')">Start Practice →</button>`;
+    nr.innerHTML=`<div class="home-nav-links"><button onclick="navigate('learn')">${t('nav_learn')}</button><button onclick="navigate('practice')">${t('nav_practice')}</button><button onclick="navigate('games')">${t('nav_games')}</button></div>${langBtn}<button class="nav-cta" onclick="navigate('practice')">${t('nav_start')}</button>`;
   }else if(page==='games'){
-    nr.innerHTML=`<span class="nav-tag violet">Games</span><button class="nav-back" onclick="navigate('home')">← Home</button>`;
+    nr.innerHTML=`<span class="nav-tag violet">${t('nav_games')}</span>${langBtn}<button class="nav-back" onclick="navigate('home')">${t('nav_back_home')}</button>`;
   }else if(page==='learn'){
-    nr.innerHTML=`<span class="nav-tag mint">Learn from Zero</span><button class="nav-back" onclick="navigate('home')">← Home</button>`;
+    nr.innerHTML=`<span class="nav-tag mint">${t('nav_learn')}</span>${langBtn}<button class="nav-back" onclick="navigate('home')">${t('nav_back_home')}</button>`;
   }else if(page==='practice'){
-    nr.innerHTML=`<span class="nav-tag mint">Practice Mode</span><button class="nav-back" onclick="navigate('home')">← Home</button>`;
+    nr.innerHTML=`<span class="nav-tag mint">${t('nav_practice')}</span>${langBtn}<button class="nav-back" onclick="navigate('home')">${t('nav_back_home')}</button>`;
   }else if(page==='crossword'){
-    nr.innerHTML=`<span class="nav-tag gold">Crossword</span><button class="nav-back" onclick="navigate('games')">← Games</button>`;
+    nr.innerHTML=`<span class="nav-tag gold">${t('xw_title')} ${t('xw_title2')}</span>${langBtn}<button class="nav-back" onclick="navigate('games')">${t('nav_back_games')}</button>`;
   }else if(page==='wordle'){
-    nr.innerHTML=`<span class="nav-tag violet">Wordle</span><button class="icon-btn" onclick="document.getElementById('helpOverlay').classList.add('show')" title="How to play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><button class="nav-back" onclick="navigate('games')">← Games</button>`;
+    nr.innerHTML=`<span class="nav-tag violet">${t('wl_title')} ${t('wl_title2')}</span>${langBtn}<button class="icon-btn" onclick="document.getElementById('helpOverlay').classList.add('show')" title="How to play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><button class="nav-back" onclick="navigate('games')">${t('nav_back_games')}</button>`;
   }
 }
 updateNav('home');
+applyTranslations();
 
 // ═══ MORSE + AUDIO ═══
 const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.'};
@@ -1023,14 +1470,14 @@ function initPractice(){
   function renderVis(code){visual.innerHTML='';for(const s of code){const el=document.createElement('div');el.className='sym '+(s==='.'?'dot':'dash');visual.appendChild(el);}pMt.textContent=code.split('').map(c=>c==='.'?'·':'−').join(' ');pMt.classList.remove('playing');}
   function buildHintGrid(){hintGrid.innerHTML='';pool().forEach(c=>{const cell=document.createElement('div');cell.className='hint-cell';if(c===PS.current&&PS.answered)cell.classList.add('match');cell.innerHTML=`<span class="hc-letter">${c}</span><span class="hc-code">${fmt(MORSE[c])}</span>`;hintGrid.appendChild(cell);});}
   async function playCode(code){await ensureAudio();const u=unitMs(),syms=visual.querySelectorAll('.sym');PS.isPlaying=true;PS.stopFlag=false;setPUI(true);syms.forEach(s=>s.classList.remove('played'));pMt.classList.add('playing');for(let i=0;i<code.length;i++){if(PS.stopFlag)break;const sym=code[i],dur=(sym==='.'?1:3)*u,el=syms[i];if(el)el.classList.add('lit');await beep(680,dur/1000);if(el){el.classList.remove('lit');el.classList.add('played');}if(!PS.stopFlag&&i<code.length-1)await sleep(u);}pMt.classList.remove('playing');PS.isPlaying=false;setPUI(false);}
-  function setPUI(p){pplayBtn.classList.toggle('playing',p);if(p){pplayIcon.innerHTML='<rect x="3" y="2" width="2.5" height="8"/><rect x="7" y="2" width="2.5" height="8"/>';pplayText.textContent='Playing...';}else{pplayIcon.innerHTML='<polygon points="2,1 11,6 2,11"/>';pplayText.textContent='Play Again';}}
+  function setPUI(p){pplayBtn.classList.toggle('playing',p);if(p){pplayIcon.innerHTML='<rect x="3" y="2" width="2.5" height="8"/><rect x="7" y="2" width="2.5" height="8"/>';pplayText.textContent=t('practice_playing');}else{pplayIcon.innerHTML='<polygon points="2,1 11,6 2,11"/>';pplayText.textContent=t('practice_play_again');}}
   async function playQ(){if(PS.isPlaying){PS.stopFlag=true;await sleep(80);setPUI(false);return;}await playCode(MORSE[PS.current]);}
   function newQ(){pcard.classList.remove('flash');void pcard.offsetWidth;pcard.classList.add('flash');PS.stopFlag=true;PS.answered=false;PS.round=PS.total+1;$('roundNum').textContent='#'+String(PS.round).padStart(3,'0');iWrap.className='input-wrap';ansInput.value='';ansInput.disabled=false;pfb.className='pfeedback';submitBtn.style.display='flex';pnextBtn.style.display='none';if(PS.hintOpen)buildHintGrid();PS.current=pickRandom();renderVis(MORSE[PS.current]);setTimeout(()=>{ansInput.focus();playQ();},300);}
-  function showFB(ok){const code=MORSE[PS.current],cf=fmt(code);pfb.className='pfeedback show '+(ok?'correct':'wrong');if(ok){fbIcon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';fbTitle.textContent=['Perfect.','Spot on.','Nailed it.','Excellent.'][Math.floor(Math.random()*4)];fbSub.innerHTML=`<b>${PS.current}</b> = <b style="color:var(--mint)">${cf}</b>`;}else{fbIcon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';fbTitle.textContent=['Not quite.','Close.','Almost.'][Math.floor(Math.random()*3)];fbSub.innerHTML=`Correct: <b style="color:var(--rose)">${PS.current}</b> = <b>${cf}</b>`;}}
+  function showFB(ok){const code=MORSE[PS.current],cf=fmt(code);pfb.className='pfeedback show '+(ok?'correct':'wrong');if(ok){fbIcon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';const msgs=t('fb_correct');fbTitle.textContent=Array.isArray(msgs)?msgs[Math.floor(Math.random()*msgs.length)]:msgs;fbSub.innerHTML=`<b>${PS.current}</b> = <b style="color:var(--mint)">${cf}</b>`;}else{fbIcon.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';const msgs=t('fb_wrong');fbTitle.textContent=Array.isArray(msgs)?msgs[Math.floor(Math.random()*msgs.length)]:msgs;fbSub.innerHTML=`${t('fb_correct_label')} <b style="color:var(--rose)">${PS.current}</b> = <b>${cf}</b>`;}}
   function submit(){if(PS.answered)return;const val=ansInput.value.trim().toUpperCase();if(!val){ansInput.focus();return;}PS.answered=true;PS.total++;ansInput.disabled=true;submitBtn.style.display='none';pnextBtn.style.display='flex';setTimeout(()=>pnextBtn.focus(),50);const ok=val===PS.current;iWrap.classList.add(ok?'correct':'wrong');showFB(ok);if(ok){PS.correct++;PS.streak++;if(PS.streak>PS.bestStreak)PS.bestStreak=PS.streak;bumpHud('hudCorrect',PS.correct);bumpHud('hudStreak',PS.streak);spawnPP(true);if(PS.streak>=3&&PS.streak%3===0)showPToast(PS.streak);}else{PS.wrong++;PS.streak=0;bumpHud('hudWrong',PS.wrong);$('hudStreak').textContent='0';}updatePStats();if(PS.hintOpen)buildHintGrid();}
   function bumpHud(id,v){const el=$(id);el.textContent=v;el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');}
-  function updatePStats(){$('statAcc').textContent=PS.total>0?Math.round(PS.correct/PS.total*100)+'%':'—';$('statBest').textContent=PS.bestStreak;$('statTotal').textContent=PS.total;$('statMode').textContent={letters:'A–Z',numbers:'0–9',mixed:'MIX'}[PS.mode];}
-  function showPToast(n){const msgs={3:'🔥 3 in a row',5:'⚡ 5 streak!',7:'🚀 7 perfect',10:'🏆 10 streak',15:'🌟 15 — LEGENDARY'};ptoast.textContent=msgs[n]||`🔥 ${n} in a row`;ptoast.classList.add('show');clearTimeout(ptoast._t);ptoast._t=setTimeout(()=>ptoast.classList.remove('show'),2200);}
+  function updatePStats(){$('statAcc').textContent=PS.total>0?Math.round(PS.correct/PS.total*100)+'%':'—';$('statBest').textContent=PS.bestStreak;$('statTotal').textContent=PS.total;$('statMode').textContent={letters:'A–Z',numbers:'0–9',mixed:t('mode_mix')}[PS.mode];}
+  function showPToast(n){const streakMsgs={3:'🔥',5:'⚡',7:'🚀',10:'🏆',15:'🌟'};const icon=streakMsgs[n]||'🔥';ptoast.textContent=`${icon} ${n} ${t('streak_row')}`;ptoast.classList.add('show');clearTimeout(ptoast._t);ptoast._t=setTimeout(()=>ptoast.classList.remove('show'),2200);}
   function spawnPP(ok){const rect=iWrap.getBoundingClientRect(),ox=rect.left+rect.width/2,oy=rect.top+rect.height/2;const syms=['·','−','·−','−·','··'],colors=ok?['rgba(0,255,166,0.95)','rgba(0,212,255,0.85)','rgba(255,200,87,0.7)']:['rgba(255,77,109,0.85)'];const n=ok?14:6;for(let i=0;i<n;i++){const p=document.createElement('div');p.className='particle';const angle=Math.PI*2*i/n+(Math.random()-0.5),dist=60+Math.random()*80;p.style.left=ox+'px';p.style.top=oy+'px';p.style.setProperty('--dx',Math.cos(angle)*dist+'px');p.style.setProperty('--dy',Math.sin(angle)*dist-30+'px');p.style.color=colors[Math.floor(Math.random()*colors.length)];p.style.fontSize=(0.7+Math.random()*0.6)+'rem';p.textContent=syms[Math.floor(Math.random()*syms.length)];document.body.appendChild(p);setTimeout(()=>p.remove(),1200);}}
   function toggleHint(){PS.hintOpen=!PS.hintOpen;hintPanel.classList.toggle('open',PS.hintOpen);hintBtn.classList.toggle('active',PS.hintOpen);if(PS.hintOpen)buildHintGrid();}
   function skip(){if(PS.answered){newQ();return;}PS.wrong++;PS.streak=0;PS.total++;bumpHud('hudWrong',PS.wrong);$('hudStreak').textContent='0';updatePStats();newQ();}
@@ -1044,13 +1491,34 @@ function initPractice(){
   let fi=false;function tryFP(){if(fi)return;fi=true;setTimeout(()=>playQ(),200);}
   document.addEventListener('click',tryFP,{once:true});document.addEventListener('keydown',tryFP,{once:true});
 }
+function refreshPracticeUI(){
+  // Refresh HUD labels
+  const hc=document.querySelector('.hud-cell.correct .hud-label');if(hc)hc.textContent=t('practice_correct');
+  const hs=document.querySelector('.hud-cell.streak .hud-label');if(hs)hs.textContent=t('practice_streak');
+  const hw=document.querySelector('.hud-cell.wrong .hud-label');if(hw)hw.textContent=t('practice_wrong');
+  // Refresh stat labels
+  const sls=document.querySelectorAll('.pstat-l');
+  const statKeys=['practice_accuracy','practice_best','practice_total','practice_mode'];
+  sls.forEach((el,i)=>{if(statKeys[i])el.textContent=t(statKeys[i]);});
+  // Refresh card labels
+  const ql=document.querySelector('.round-lbl');if(ql)ql.textContent=t('practice_question');
+  const sl=document.querySelector('.stage-lbl');if(sl)sl.textContent=t('practice_listen');
+  const hl=document.querySelector('.hint-title');if(hl)hl.textContent=t('hint_ref');
+  const il=document.querySelector('.input-lbl');if(il)il.textContent=t('practice_answer');
+  // Refresh buttons
+  const subBtn=document.getElementById('submitBtn');if(subBtn){const svg=subBtn.querySelector('svg');subBtn.innerHTML='';if(svg)subBtn.appendChild(svg);subBtn.appendChild(Object.assign(document.createElement('span'),{textContent:t('practice_submit')}));}
+  const skipBtn=document.getElementById('skipBtn');if(skipBtn)skipBtn.textContent=t('practice_skip');
+  const pnBtn=document.getElementById('pnextBtn');if(pnBtn&&pnBtn.style.display!=='none'){const svg=pnBtn.querySelector('svg');pnBtn.innerHTML='';pnBtn.appendChild(Object.assign(document.createElement('span'),{textContent:t('practice_next')}));if(svg)pnBtn.appendChild(svg);}
+  const hBtn=document.getElementById('hintBtn');if(hBtn){const svg=hBtn.querySelector('svg');const sp=hBtn.querySelector('span');if(sp)sp.textContent=t('practice_hint');}
+  const ptEl=document.getElementById('pplayText');if(ptEl)ptEl.textContent=t('practice_play');
+}
 
 // ═══ CROSSWORD ═══
 function initCrossword(){
   crosswordInited=true;
   const $=id=>document.getElementById(id);
   const ROWS=8,COLS=6;
-  const WORDS=[{num:1,word:'MORSE',row:0,col:4,dir:'down',clue:'Samuel ___, telegraph pioneer'},{num:2,word:'RADIO',row:1,col:0,dir:'across',clue:'Wireless transmitter device'},{num:3,word:'CODE',row:4,col:1,dir:'across',clue:'A system of signals'},{num:4,word:'DASH',row:4,col:3,dir:'down',clue:'Long Morse signal (−)'},{num:5,word:'WAVE',row:5,col:2,dir:'across',clue:'Radio ___, frequency form'},{num:6,word:'SOS',row:6,col:3,dir:'across',clue:'Distress call'},{num:7,word:'HAM',row:7,col:3,dir:'across',clue:'___ radio operator'}];
+  const WORDS=[{num:1,word:'MORSE',row:0,col:4,dir:'down',clue:t('clue1')},{num:2,word:'RADIO',row:1,col:0,dir:'across',clue:t('clue2')},{num:3,word:'CODE',row:4,col:1,dir:'across',clue:t('clue3')},{num:4,word:'DASH',row:4,col:3,dir:'down',clue:t('clue4')},{num:5,word:'WAVE',row:5,col:2,dir:'across',clue:t('clue5')},{num:6,word:'SOS',row:6,col:3,dir:'across',clue:t('clue6')},{num:7,word:'HAM',row:7,col:3,dir:'across',clue:t('clue7')}];
   const SOL=Array.from({length:ROWS},()=>Array(COLS).fill(null));
   WORDS.forEach(w=>{for(let i=0;i<w.word.length;i++){const r=w.dir==='down'?w.row+i:w.row,c=w.dir==='across'?w.col+i:w.col;SOL[r][c]=w.word[i];}});
   const totalCells=SOL.flat().filter(Boolean).length;
@@ -1061,7 +1529,7 @@ function initCrossword(){
   gridEl.style.setProperty('--rows',ROWS);gridEl.style.setProperty('--cols',COLS);
 
   function buildXGrid(){gridEl.innerHTML='';for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const cell=document.createElement('div');cell.className=SOL[r][c]?'xcell fill':'xcell empty';cell.dataset.r=r;cell.dataset.c=c;if(SOL[r][c]){if(CNUM[`${r},${c}`]){const num=document.createElement('span');num.className='cell-num';num.textContent=CNUM[`${r},${c}`];cell.appendChild(num);}const inp=document.createElement('input');inp.className='cell-input';inp.maxLength=1;inp.dataset.r=r;inp.dataset.c=c;inp.autocomplete='off';cell.appendChild(inp);cell.addEventListener('click',()=>activateXCell(r,c));inp.addEventListener('focus',()=>activateXCell(r,c,false));inp.addEventListener('input',e=>onXInput(e,r,c));inp.addEventListener('keydown',e=>onXKey(e,r,c));}gridEl.appendChild(cell);}}
-  function buildXClues(){cluesAEl.innerHTML='';cluesDEl.innerHTML='';WORDS.forEach(w=>{const el=document.createElement('div');el.className='clue';el.dataset.num=w.num;el.dataset.dir=w.dir;el.innerHTML=`<div class="clue-num">${w.num}</div><div class="clue-main"><div class="clue-text">${w.clue}</div><div class="clue-meta"><span class="clue-len">${w.word.length} letters</span><span class="clue-morse">${w.word.split('').map(ch=>fmt(MORSE[ch])).join(' / ')}</span></div></div><button class="clue-play" title="Play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></button>`;el.addEventListener('click',e=>{if(e.target.closest('.clue-play'))playXWord(w);else activateXWord(w);});(w.dir==='across'?cluesAEl:cluesDEl).appendChild(el);});}
+  function buildXClues(){cluesAEl.innerHTML='';cluesDEl.innerHTML='';WORDS.forEach(w=>{const el=document.createElement('div');el.className='clue';el.dataset.num=w.num;el.dataset.dir=w.dir;el.innerHTML=`<div class="clue-num">${w.num}</div><div class="clue-main"><div class="clue-text">${w.clue}</div><div class="clue-meta"><span class="clue-len">${w.word.length} ${t('xw_letters')}</span><span class="clue-morse">${w.word.split('').map(ch=>fmt(MORSE[ch])).join(' / ')}</span></div></div><button class="clue-play" title="Play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></button>`;el.addEventListener('click',e=>{if(e.target.closest('.clue-play'))playXWord(w);else activateXWord(w);});(w.dir==='across'?cluesAEl:cluesDEl).appendChild(el);});}
   function activateXCell(r,c,focus=true){if(!SOL[r][c])return;XS.active={row:r,col:c};const words=wordsAt(r,c);if(!XS.activeWord||!words.includes(XS.activeWord))XS.activeWord=words[0];renderX();if(focus){const inp=gridEl.querySelector(`.cell-input[data-r="${r}"][data-c="${c}"]`);if(inp)inp.focus();}}
   function activateXWord(w){XS.activeWord=w;XS.active={row:w.row,col:w.col};for(let i=0;i<w.word.length;i++){const r=w.dir==='down'?w.row+i:w.row,c=w.dir==='across'?w.col+i:w.col;if(!XS.values[r][c]){XS.active={row:r,col:c};break;}}renderX();const{row,col}=XS.active;const inp=gridEl.querySelector(`.cell-input[data-r="${row}"][data-c="${col}"]`);if(inp)inp.focus();}
   function onXInput(e,r,c){const val=e.target.value.toUpperCase().replace(/[^A-Z]/g,'').slice(-1);e.target.value=val;XS.values[r][c]=val;e.target.parentElement.classList.remove('correct','wrong');updateXStats();checkXWordSolved();if(val)xAdvance(1);if(allXFilled()&&allXCorrect())triggerXWin();}
@@ -1069,7 +1537,7 @@ function initCrossword(){
   function xMove(dr,dc){if(!XS.active)return;let{row:r,col:c}=XS.active,att=0;do{r+=dr;c+=dc;att++;if(r<0||r>=ROWS||c<0||c>=COLS)return;}while(!SOL[r][c]&&att<ROWS*COLS);if(SOL[r][c])activateXCell(r,c);}
   function xAdvance(step){if(!XS.activeWord||!XS.active)return;const w=XS.activeWord,idx=w.dir==='down'?XS.active.row-w.row:XS.active.col-w.col,next=idx+step;if(next<0||next>=w.word.length)return;const r=w.dir==='down'?w.row+next:w.row,c=w.dir==='across'?w.col+next:w.col;XS.active={row:r,col:c};renderX();const inp=gridEl.querySelector(`.cell-input[data-r="${r}"][data-c="${c}"]`);if(inp)inp.focus();}
   function xNextWord(step){const idx=WORDS.indexOf(XS.activeWord);activateXWord(WORDS[(idx+step+WORDS.length)%WORDS.length]);}
-  function renderX(){document.querySelectorAll('.xcell.fill').forEach(cell=>{cell.classList.remove('active','in-word');const r=+cell.dataset.r,c=+cell.dataset.c;if(XS.activeWord){const w=XS.activeWord,inW=w.dir==='across'?(w.row===r&&c>=w.col&&c<w.col+w.word.length):(w.col===c&&r>=w.row&&r<w.row+w.word.length);if(inW)cell.classList.add('in-word');}if(XS.active&&XS.active.row===r&&XS.active.col===c)cell.classList.add('active');});document.querySelectorAll('.clue').forEach(el=>el.classList.toggle('active',XS.activeWord&&+el.dataset.num===XS.activeWord.num&&el.dataset.dir===XS.activeWord.dir));if(XS.activeWord){const w=XS.activeWord;$('abNum').textContent=w.num;$('abDir').textContent=`${w.dir.toUpperCase()} · ${w.word.length} letters`;$('abClue').textContent=w.clue;$('abMorse').textContent=w.word.split('').map(ch=>fmt(MORSE[ch])).join('  /  ');}}
+  function renderX(){document.querySelectorAll('.xcell.fill').forEach(cell=>{cell.classList.remove('active','in-word');const r=+cell.dataset.r,c=+cell.dataset.c;if(XS.activeWord){const w=XS.activeWord,inW=w.dir==='across'?(w.row===r&&c>=w.col&&c<w.col+w.word.length):(w.col===c&&r>=w.row&&r<w.row+w.word.length);if(inW)cell.classList.add('in-word');}if(XS.active&&XS.active.row===r&&XS.active.col===c)cell.classList.add('active');});document.querySelectorAll('.clue').forEach(el=>el.classList.toggle('active',XS.activeWord&&+el.dataset.num===XS.activeWord.num&&el.dataset.dir===XS.activeWord.dir));if(XS.activeWord){const w=XS.activeWord;$('abNum').textContent=w.num;$('abDir').textContent=`${w.dir==='across'?t('xw_across'):t('xw_down')} · ${w.word.length} ${t('xw_letters')}`;$('abClue').textContent=w.clue;$('abMorse').textContent=w.word.split('').map(ch=>fmt(MORSE[ch])).join('  /  ');}}
   function updateXStats(){const filled=XS.values.flat().filter(v=>v).length;$('statFilled').textContent=`${filled}/${totalCells}`;$('statSolved').textContent=`${WORDS.filter(isXWCorrect).length}/${WORDS.length}`;}
   function isXWCorrect(w){for(let i=0;i<w.word.length;i++){const r=w.dir==='down'?w.row+i:w.row,c=w.dir==='across'?w.col+i:w.col;if(XS.values[r][c]!==w.word[i])return false;}return true;}
   function checkXWordSolved(){WORDS.forEach(w=>{const el=document.querySelector(`.clue[data-num="${w.num}"][data-dir="${w.dir}"]`);if(el)el.classList.toggle('solved',isXWCorrect(w));});}
@@ -1084,12 +1552,56 @@ function initCrossword(){
   function triggerXWin(){if($('xwinOverlay').classList.contains('show'))return;clearInterval(XS.timerInt);$('xwinTime').textContent=$('statTime').textContent;$('xwinHints').textContent=XS.hints;$('xwinPlays').textContent=XS.plays;xConfetti();setTimeout(()=>$('xwinOverlay').classList.add('show'),500);}
   function xConfetti(){const syms=['·','−','·−','−·−','··','−−'],colors=['rgba(0,255,166,0.95)','rgba(0,212,255,0.95)','rgba(255,200,87,0.9)'],cx=innerWidth/2,cy=innerHeight/2;for(let i=0;i<30;i++){const p=document.createElement('div');p.className='particle';const a=Math.PI*2*Math.random(),d=150+Math.random()*200;p.style.left=cx+'px';p.style.top=cy+'px';p.style.setProperty('--dx',Math.cos(a)*d+'px');p.style.setProperty('--dy',Math.sin(a)*d+'px');p.style.color=colors[Math.floor(Math.random()*colors.length)];p.style.fontSize=(0.8+Math.random()*0.7)+'rem';p.textContent=syms[Math.floor(Math.random()*syms.length)];document.body.appendChild(p);setTimeout(()=>p.remove(),1300);}}
   function resetX(){XS.values=Array.from({length:ROWS},()=>Array(COLS).fill(''));XS.hints=0;XS.plays=0;document.querySelectorAll('.xcell.fill').forEach(cell=>{cell.classList.remove('correct','wrong');const inp=cell.querySelector('.cell-input');if(inp)inp.value='';});document.querySelectorAll('.clue').forEach(el=>el.classList.remove('solved'));updateXStats();}
-  $('checkBtn').addEventListener('click',()=>{let ok=0,bad=0;document.querySelectorAll('.xcell.fill').forEach(cell=>{const r=+cell.dataset.r,c=+cell.dataset.c,v=XS.values[r][c];cell.classList.remove('correct','wrong');if(!v)return;if(v===SOL[r][c]){cell.classList.add('correct');ok++;}else{cell.classList.add('wrong');bad++;}});if(bad===0&&ok===totalCells)triggerXWin();else if(bad===0)showXToast(`${ok} correct, keep going!`,'success');else showXToast(`${ok} correct · ${bad} wrong`,'error');checkXWordSolved();});
-  $('xhintBtn').addEventListener('click',()=>{if(!XS.active){showXToast('Pick a cell first','info');return;}const{row,col}=XS.active,letter=SOL[row][col],inp=gridEl.querySelector(`.cell-input[data-r="${row}"][data-c="${col}"]`);if(inp){inp.value=letter;XS.values[row][col]=letter;inp.parentElement.classList.remove('wrong');inp.parentElement.classList.add('correct');XS.hints++;updateXStats();checkXWordSolved();if(allXCorrect())triggerXWin();else xAdvance(1);}});
-  $('solveBtn').addEventListener('click',()=>{if(!XS.activeWord){showXToast('Pick a word first','info');return;}const w=XS.activeWord;for(let i=0;i<w.word.length;i++){const r=w.dir==='down'?w.row+i:w.row,c=w.dir==='across'?w.col+i:w.col;XS.values[r][c]=w.word[i];const inp=gridEl.querySelector(`.cell-input[data-r="${r}"][data-c="${c}"]`);if(inp){inp.value=w.word[i];inp.parentElement.classList.remove('wrong');inp.parentElement.classList.add('correct');}}XS.hints+=w.word.length;updateXStats();checkXWordSolved();if(allXCorrect())triggerXWin();});
-  $('xresetBtn').addEventListener('click',()=>{if(!confirm('Reset the whole puzzle?'))return;$('xwinOverlay').classList.remove('show');resetX();startXTimer();});
+  $('checkBtn').addEventListener('click',()=>{let ok=0,bad=0;document.querySelectorAll('.xcell.fill').forEach(cell=>{const r=+cell.dataset.r,c=+cell.dataset.c,v=XS.values[r][c];cell.classList.remove('correct','wrong');if(!v)return;if(v===SOL[r][c]){cell.classList.add('correct');ok++;}else{cell.classList.add('wrong');bad++;}});if(bad===0&&ok===totalCells)triggerXWin();else if(bad===0)showXToast(`${ok} ${t('xw_keep_going')}`,'success');else showXToast(`${ok} ${t('xw_correct_label')} · ${bad} ${t('xw_wrong')}`,'error');checkXWordSolved();});
+  $('xhintBtn').addEventListener('click',()=>{if(!XS.active){showXToast(t('xw_pick_cell'),'info');return;}const{row,col}=XS.active,letter=SOL[row][col],inp=gridEl.querySelector(`.cell-input[data-r="${row}"][data-c="${col}"]`);if(inp){inp.value=letter;XS.values[row][col]=letter;inp.parentElement.classList.remove('wrong');inp.parentElement.classList.add('correct');XS.hints++;updateXStats();checkXWordSolved();if(allXCorrect())triggerXWin();else xAdvance(1);}});
+  $('solveBtn').addEventListener('click',()=>{if(!XS.activeWord){showXToast(t('xw_pick_word'),'info');return;}const w=XS.activeWord;for(let i=0;i<w.word.length;i++){const r=w.dir==='down'?w.row+i:w.row,c=w.dir==='across'?w.col+i:w.col;XS.values[r][c]=w.word[i];const inp=gridEl.querySelector(`.cell-input[data-r="${r}"][data-c="${c}"]`);if(inp){inp.value=w.word[i];inp.parentElement.classList.remove('wrong');inp.parentElement.classList.add('correct');}}XS.hints+=w.word.length;updateXStats();checkXWordSolved();if(allXCorrect())triggerXWin();});
+  $('xresetBtn').addEventListener('click',()=>{if(!confirm(t('xw_reset_confirm')))return;$('xwinOverlay').classList.remove('show');resetX();startXTimer();});
   $('xwinPlayAgain').addEventListener('click',()=>{$('xwinOverlay').classList.remove('show');resetX();startXTimer();});
   buildXGrid();buildXClues();activateXWord(WORDS[0]);updateXStats();startXTimer();
+}
+function refreshCrosswordUI(){
+  // Refresh stat labels
+  const fl=document.querySelector('.h-stat.filled .h-stat-l');if(fl)fl.textContent=t('xw_filled');
+  const sl=document.querySelector('.h-stat.solved .h-stat-l');if(sl)sl.textContent=t('xw_solved');
+  const tl=document.querySelector('.h-stat.time .h-stat-l');if(tl)tl.textContent=t('xw_time');
+  // Refresh subtitle
+  const sub=document.querySelector('.xw-subtitle');if(sub)sub.textContent=t('xw_sub');
+  // Refresh clues panel title
+  const ct=document.querySelector('.clues-title');if(ct)ct.textContent=t('xw_clues');
+  // Refresh section titles
+  const sects=document.querySelectorAll('.clues-section-title');
+  if(sects[0])sects[0].textContent=t('xw_across');
+  if(sects[1])sects[1].textContent=t('xw_down');
+  // Rebuild clues with new language (clue texts come from t())
+  const cluesAEl=document.getElementById('cluesAcross'),cluesDEl=document.getElementById('cluesDown');
+  if(cluesAEl&&cluesDEl){
+    const WORDS_REF=[
+      {num:1,word:'MORSE',dir:'down',key:'clue1'},{num:2,word:'RADIO',dir:'across',key:'clue2'},
+      {num:3,word:'CODE',dir:'across',key:'clue3'},{num:4,word:'DASH',dir:'down',key:'clue4'},
+      {num:5,word:'WAVE',dir:'across',key:'clue5'},{num:6,word:'SOS',dir:'across',key:'clue6'},
+      {num:7,word:'HAM',dir:'across',key:'clue7'}
+    ];
+    WORDS_REF.forEach(w=>{
+      const el=document.querySelector(`.clue[data-num="${w.num}"][data-dir="${w.dir}"]`);
+      if(el){
+        const ct=el.querySelector('.clue-text');if(ct)ct.textContent=t(w.key);
+        const cl=el.querySelector('.clue-len');if(cl)cl.textContent=`${w.word.length} ${t('xw_letters')}`;
+      }
+    });
+  }
+  // Refresh win overlay
+  const wt=document.querySelector('.xwin-title');if(wt)wt.textContent=t('xw_win_title');
+  const ws=document.querySelector('.xwin-sub');if(ws)ws.textContent=t('xw_win_sub');
+  const xwinStats=document.querySelectorAll('.xwin-stat-l');
+  const xwinKeys=['xw_time','xw_hints','xw_plays'];
+  xwinStats.forEach((el,i)=>{if(xwinKeys[i])el.textContent=t(xwinKeys[i]);});
+  // Refresh buttons
+  const checkBtn=document.getElementById('checkBtn');if(checkBtn){const svg=checkBtn.querySelector('svg');const sp=checkBtn.querySelector('span');if(sp)sp.textContent=t('xw_check');}
+  const xhintBtn=document.getElementById('xhintBtn');if(xhintBtn){const sp=xhintBtn.querySelector('span');if(sp)sp.textContent=t('xw_reveal_letter');}
+  const solveBtn=document.getElementById('solveBtn');if(solveBtn){const sp=solveBtn.querySelector('span');if(sp)sp.textContent=t('xw_reveal_word');}
+  const xresetBtn=document.getElementById('xresetBtn');if(xresetBtn){const sp=xresetBtn.querySelector('span');if(sp)sp.textContent=t('xw_reset');}
+  const xpa=document.getElementById('xwinPlayAgain');if(xpa)xpa.textContent=t('xw_play_again');
+  const xmg=document.querySelector('#xwinOverlay .xbtn-ghost');if(xmg)xmg.textContent=t('xw_more_games');
 }
 
 // ═══ WORDLE ═══
@@ -1100,13 +1612,13 @@ function initWordle(){
   const WS={answer:'',guesses:[],current:'',over:false,played:0,wins:0,streak:0,best:0,isPlaying:false,lastGuess:''};
   function newWGame(){WS.answer=WORDS[Math.floor(Math.random()*WORDS.length)];WS.guesses=[];WS.current='';WS.over=false;$('wendOverlay').classList.remove('show');buildWBoard();buildWKbd();}
   function buildWBoard(){const b=$('wboard');b.innerHTML='';for(let r=0;r<6;r++){const row=document.createElement('div');row.className='wrow';for(let c=0;c<5;c++){const tile=document.createElement('div');tile.className='tile';tile.dataset.r=r;tile.dataset.c=c;const mc=MORSE[WS.answer[0]]||'';tile.innerHTML=`<div class="tile-inner"><div class="tile-face front"><span class="tile-letter"></span><div class="tile-morse"></div></div><div class="tile-face back"><span class="tile-letter"></span><div class="tile-morse"></div></div></div>`;row.appendChild(tile);}b.appendChild(row);}}
-  function buildWKbd(){const kb=$('wkeyboard');kb.innerHTML='';const rows=[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['ENTER','Z','X','C','V','B','N','M','⌫']];rows.forEach(keys=>{const row=document.createElement('div');row.className='kb-row';keys.forEach(k=>{const btn=document.createElement('button');btn.className='kb-key'+(k.length>1?' wide':'');btn.dataset.key=k;if(k.length>1){btn.innerHTML=k==='⌫'?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`:k;}else{const mc=MORSE[k]||'';btn.innerHTML=`<span class="kb-letter">${k}</span><div class="kb-morse">${mc.split('').map(s=>`<span class="km ${s==='.'?'dot':'dash'}"></span>`).join('')}</div>`;}btn.addEventListener('click',()=>handleWKey(k));row.appendChild(btn);});kb.appendChild(row);});}
+  function buildWKbd(){const kb=$('wkeyboard');kb.innerHTML='';const rows=[['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['ENTER','Z','X','C','V','B','N','M','⌫']];rows.forEach(keys=>{const row=document.createElement('div');row.className='kb-row';keys.forEach(k=>{const btn=document.createElement('button');btn.className='kb-key'+(k.length>1?' wide':'');btn.dataset.key=k;if(k.length>1){btn.innerHTML=k==='⌫'?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>`:k.length>1&&k==='ENTER'?t('wl_enter_key'):k;}else{const mc=MORSE[k]||'';btn.innerHTML=`<span class="kb-letter">${k}</span><div class="kb-morse">${mc.split('').map(s=>`<span class="km ${s==='.'?'dot':'dash'}"></span>`).join('')}</div>`;}btn.addEventListener('click',()=>handleWKey(k));row.appendChild(btn);});kb.appendChild(row);});}
   function setWTile(r,c,letter){const tile=$('wboard').querySelectorAll('.wrow')[r]?.querySelectorAll('.tile')[c];if(!tile)return;const mc=MORSE[letter]||'';tile.classList.add('filled');tile.querySelector('.tile-face.front .tile-letter').textContent=letter;tile.querySelector('.tile-face.front .tile-morse').innerHTML=mc.split('').map(s=>`<span class="tm ${s==='.'?'dot':'dash'}"></span>`).join('');}
   function handleWKey(k){if(WS.over)return;if(k==='ENTER'){submitWGuess();}else if(k==='⌫'){if(WS.current.length>0){WS.current=WS.current.slice(0,-1);const r=WS.guesses.length,c=WS.current.length;const tile=$('wboard').querySelectorAll('.wrow')[r]?.querySelectorAll('.tile')[c];if(tile){tile.classList.remove('filled');tile.querySelector('.tile-face.front .tile-letter').textContent='';tile.querySelector('.tile-face.front .tile-morse').innerHTML='';}}}else if(/^[A-Z]$/.test(k)&&WS.current.length<5){WS.current+=k;setWTile(WS.guesses.length,WS.current.length-1,k);}}
   async function submitWGuess(){if(WS.current.length!==5)return;const guess=WS.current,answer=WS.answer,result=Array(5).fill('absent'),ansCount={};for(let i=0;i<5;i++)if(guess[i]===answer[i])result[i]='correct';else ansCount[answer[i]]=(ansCount[answer[i]]||0)+1;for(let i=0;i<5;i++)if(result[i]!=='correct'&&ansCount[guess[i]]>0){result[i]='present';ansCount[guess[i]]--;}WS.lastGuess=guess;WS.guesses.push({guess,result});WS.current='';const r=WS.guesses.length-1,rows=$('wboard').querySelectorAll('.wrow'),tiles=rows[r]?.querySelectorAll('.tile');for(let c=0;c<5;c++){const tile=tiles[c],mc=MORSE[guess[c]]||'';tile.querySelector('.tile-face.back .tile-letter').textContent=guess[c];tile.querySelector('.tile-face.back .tile-morse').innerHTML=mc.split('').map(s=>`<span class="tm ${s==='.'?'dot':'dash'}"></span>`).join('');tile.classList.add('state-'+result[c]);setTimeout(()=>tile.classList.add('flip'),c*100);}setTimeout(()=>{for(let c=0;c<5;c++){const key=$('wkeyboard').querySelector(`[data-key="${guess[c]}"]`);if(key){const pri={correct:3,present:2,absent:1},cur=pri[result[c]],prevC=key.className.match(/state-(\w+)/)?.[1],prev=pri[prevC]||0;if(cur>prev){key.classList.remove('state-correct','state-present','state-absent');key.classList.add('state-'+result[c]);}}}},600);setTimeout(async()=>{await playWGuess(guess);const won=result.every(r=>r==='correct'),lost=!won&&WS.guesses.length===6;WS.played++;if(won){WS.wins++;WS.streak++;if(WS.streak>WS.best)WS.best=WS.streak;WS.over=true;tiles.forEach((t,i)=>setTimeout(()=>t.classList.add('win-bounce'),i*80));showWEnd(true);}else if(lost){WS.streak=0;WS.over=true;showWEnd(false);}},800);}
   const WU=()=>1200/14;
   async function playWGuess(word){await ensureAudio();WS.isPlaying=true;for(let i=0;i<word.length;i++){const code=MORSE[word[i]]||'';for(let j=0;j<code.length;j++){if(!WS.isPlaying)break;const dur=(code[j]==='.'?1:3)*WU();await beep(680,dur/1000);if(j<code.length-1)await sleep(WU());}if(i<word.length-1)await sleep(WU()*3);}WS.isPlaying=false;}
-  function showWEnd(won){const modal=$('wendModal');modal.className='wmodal '+(won?'win':'lose');$('wendIcon').textContent=won?'🏆':'📻';$('wendTitle').textContent=won?['Brilliant!','Nailed it!','Outstanding!'][Math.floor(Math.random()*3)]:'Signal Lost';$('wendSub').textContent=won?'Nicely decoded, operator.':(`The word was: ${WS.answer}`);$('wendWord').textContent=WS.answer;$('wendMorse').textContent=WS.answer.split('').map(c=>fmt(MORSE[c]||'')).join('  ');$('wstatPlayed').textContent=WS.played;$('wstatWinPct').textContent=WS.played?Math.round(WS.wins/WS.played*100)+'%':'0%';$('wstatStreak').textContent=WS.streak;$('wstatBest').textContent=WS.best;setTimeout(()=>$('wendOverlay').classList.add('show'),1200);}
+  function showWEnd(won){const modal=$('wendModal');modal.className='wmodal '+(won?'win':'lose');$('wendIcon').textContent=won?'🏆':'📻';const solved=t('wl_solved');$('wendTitle').textContent=won?(Array.isArray(solved)?solved[Math.floor(Math.random()*solved.length)]:solved):t('wl_lost');$('wendSub').textContent=won?t('wl_decoded'):(t('wl_word_was')+WS.answer);$('wendWord').textContent=WS.answer;$('wendMorse').textContent=WS.answer.split('').map(c=>fmt(MORSE[c]||'')).join('  ');$('wstatPlayed').textContent=WS.played;$('wstatWinPct').textContent=WS.played?Math.round(WS.wins/WS.played*100)+'%':'0%';$('wstatStreak').textContent=WS.streak;$('wstatBest').textContent=WS.best;setTimeout(()=>$('wendOverlay').classList.add('show'),1200);}
   document.addEventListener('keydown',e=>{if(currentPage!=='wordle')return;if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='Enter')handleWKey('ENTER');else if(e.key==='Backspace')handleWKey('⌫');else if(/^[a-zA-Z]$/.test(e.key))handleWKey(e.key.toUpperCase());});
   $('wnewBtn').addEventListener('click',newWGame);
   $('replayBtn').addEventListener('click',()=>{if(WS.lastGuess&&!WS.isPlaying)playWGuess(WS.lastGuess);});
@@ -1124,18 +1636,19 @@ function initLearn(){
   let lACtx=null;
   async function ensureLA(){if(!lACtx)lACtx=new(window.AudioContext||window.webkitAudioContext)();if(lACtx.state==='suspended')await lACtx.resume();}
   function lBeep(freq,dur){return new Promise(resolve=>{const o=lACtx.createOscillator(),g=lACtx.createGain();o.connect(g);g.connect(lACtx.destination);o.type='sine';o.frequency.value=freq;const t=lACtx.currentTime;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.32,t+0.008);g.gain.setValueAtTime(0.32,t+Math.max(dur-0.008,0.005));g.gain.linearRampToValueAtTime(0,t+dur);o.start(t);o.stop(t+dur+0.01);o.onended=resolve;});}
-  const LESSONS=[{num:'01',name:'Your first signals',letters:['E','T'],sub:'The simplest signals: E is one dot, T is one dash.'},{num:'02',name:'Adding I and A',letters:['I','A'],sub:'Two-symbol codes. Building on E and T.'},{num:'03',name:'N and M',letters:['N','M'],sub:'Mirror images of I and A.'},{num:'04',name:'S and O',letters:['S','O'],sub:'The famous SOS combination — ···  −−−  ···'},{num:'05',name:'R, U, D, K',letters:['R','U','D','K'],sub:'Longer patterns start here.'},{num:'06',name:'G, W, B, C',letters:['G','W','B','C'],sub:'More complex four-symbol codes.'},{num:'07',name:'H, V, F, L',letters:['H','V','F','L'],sub:'Four-symbol letters — focus on rhythm.'},{num:'08',name:'Final Letters',letters:['P','J','X','Y','Z','Q'],sub:'The last group — you\'re almost there!'}];
+  const LESSON_DATA=[{num:'01',key:'1',letters:['E','T']},{num:'02',key:'2',letters:['I','A']},{num:'03',key:'3',letters:['N','M']},{num:'04',key:'4',letters:['S','O']},{num:'05',key:'5',letters:['R','U','D','K']},{num:'06',key:'6',letters:['G','W','B','C']},{num:'07',key:'7',letters:['H','V','F','L']},{num:'08',key:'8',letters:['P','J','X','Y','Z','Q']}];
+  const LESSONS=LESSON_DATA.map(d=>({...d,get name(){return t('lesson'+d.key+'_name');},get sub(){return t('lesson'+d.key+'_sub');}}));
   let curL=0,curS=0,knownL=[],steps=[],isLP=false,lStop=false;
   function buildSteps(lesson){const s=[];s.push({type:'intro'});lesson.letters.forEach(letter=>{s.push({type:'flashcard',letter});s.push({type:'recognition',letter});s.push({type:'recall',letter});});if(lesson.letters.length>=2)s.push({type:'word',letters:lesson.letters});s.push({type:'complete'});return s;}
   function startLesson(idx){curL=idx;curS=0;steps=buildSteps(LESSONS[idx]);updateLUI();renderLS();}
   function updateLUI(){const lesson=LESSONS[curL];$('lessonNum').textContent=lesson.num;$('lessonName').textContent=lesson.name;$('progressFill').style.width=(curL/LESSONS.length*100)+'%';$('progressCounter').textContent=`${curL} / ${LESSONS.length}`;if(knownL.length>0){$('knownRail').style.display='flex';$('knownRail').querySelectorAll('.known-chip').forEach(e=>e.remove());knownL.forEach(l=>{const chip=document.createElement('span');chip.className='known-chip';chip.textContent=l;$('knownRail').appendChild(chip);});}}
-  function renderLS(){const step=steps[curS],stage=$('lstage');stage.className='lstage swap-out';setTimeout(()=>{stage.className='lstage';$('stepTag').textContent='LESSON';$('phaseTag').textContent=step.type.toUpperCase();$('lnextBtn').disabled=true;$('lbackBtn').style.visibility=curS>0?'visible':'hidden';$('lnextBtn').textContent='Continue →';$('lnextBtn').className='lbtn lbtn-primary';switch(step.type){case 'intro':renderLIntro();break;case 'flashcard':renderLFlashcard(step.letter);break;case 'recognition':renderLRecog(step.letter);break;case 'recall':renderLRecall(step.letter);break;case 'word':renderLWord(step.letters);break;case 'complete':renderLComplete();break;}},250);}
-  function renderLIntro(){const lesson=LESSONS[curL];$('lstage').innerHTML=`<div class="lesson-intro"><div class="lesson-intro-num">LESSON ${lesson.num}</div><div class="lesson-intro-title">${lesson.name}</div><div class="lesson-intro-sub">${lesson.sub}</div><div class="lesson-new-letters">${lesson.letters.map(l=>`<div class="lesson-letter-chip">${l}<small>${fmt(MORSE[l])}</small></div>`).join('')}</div></div>`;$('lnextBtn').disabled=false;}
-  function renderLFlashcard(letter){const code=MORSE[letter];const dots=code.split('').map(s=>`<div class="fc-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="intro-title">Tap to reveal Morse · click to hear it</div><div class="flashcard" id="lfc"><div class="flashcard-inner"><div class="fc-face front"><div class="fc-letter">${letter}</div><div class="fc-hint">tap to flip</div></div><div class="fc-face back"><div class="fc-morse-symbols">${dots}</div><div class="fc-code">${fmt(code)}</div><div class="fc-letter-back">${letter}</div></div></div></div><button class="q-play" id="lPlayBtn"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>Play sound</button>`;const fc=document.getElementById('lfc');fc.addEventListener('click',()=>{fc.classList.toggle('flipped');if(fc.classList.contains('flipped')){$('lnextBtn').disabled=false;lPlayCode(code);}});document.getElementById('lPlayBtn').addEventListener('click',()=>lPlayCode(code));}
-  function renderLRecog(letter){const code=MORSE[letter];const pool=[...LESSONS[curL].letters,...LESSONS.slice(0,curL).flatMap(l=>l.letters)].filter((v,i,a)=>a.indexOf(v)===i);let opts=[letter];while(opts.length<4&&opts.length<pool.length){const r=pool[Math.floor(Math.random()*pool.length)];if(!opts.includes(r))opts.push(r);}while(opts.length<4)opts.push(['A','E','T','I','N','S','M'].find(x=>!opts.includes(x))||'?');opts=opts.sort(()=>Math.random()-0.5);const dots=code.split('').map(s=>`<div class="q-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="q-stage-label">What letter is this?</div><div class="q-morse-display">${dots}</div><button class="q-play" id="lqPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>Play</button><div class="options">${opts.map(o=>`<button class="opt" data-opt="${o}">${o}</button>`).join('')}</div><div class="lfeedback" id="lfb"></div>`;document.getElementById('lqPlay').addEventListener('click',()=>lPlayCode(code));document.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled)return;const ok=btn.dataset.opt===letter;document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.opt===letter)b.classList.add('correct');else if(b===btn&&!ok)b.classList.add('wrong');});const fb=document.getElementById('lfb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ Correct! ${letter} = <span class="answer-rev">${fmt(code)}</span>`:`✗ Answer: ${letter} = <span class="answer-rev">${fmt(code)}</span>`;$('lnextBtn').disabled=false;if(ok)lPlayCode(code);}));setTimeout(()=>lPlayCode(code),300);}
-  function renderLRecall(letter){const code=MORSE[letter];const dots=code.split('').map(s=>`<div class="q-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="q-stage-label">Type the letter for this Morse code</div><div class="q-morse-display">${dots}</div><button class="q-play" id="lrPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>Play</button><div class="recall-input-wrap" id="lrWrap"><div class="recall-label">Your answer</div><input class="recall-input" id="lrInput" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text"></div><div class="lfeedback" id="lrFb"></div>`;document.getElementById('lrPlay').addEventListener('click',()=>lPlayCode(code));const inp=document.getElementById('lrInput');inp.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,1);});inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLRecall();});function checkLRecall(){const val=inp.value.toUpperCase();if(!val)return;const ok=val===letter;document.getElementById('lrWrap').classList.add(ok?'correct':'wrong');inp.disabled=true;const fb=document.getElementById('lrFb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ Correct!`:`✗ Answer: <span class="answer-rev">${letter}</span>`;$('lnextBtn').disabled=false;if(!knownL.includes(letter)&&ok)knownL.push(letter);}setTimeout(()=>{inp.focus();lPlayCode(code);},300);}
-  function renderLWord(letters){const word=letters.slice(0,2).join('');const mw=word.split('').map(l=>fmt(MORSE[l])).join('  ');$('lstage').innerHTML=`<div class="q-stage-label">Type the word you hear</div><button class="q-play" id="lwPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>Play word</button><div class="word-input-wrap" id="lwWrap"><input class="word-input" id="lwInput" maxlength="${word.length}" autocomplete="off" autocorrect="off" spellcheck="false" style="text-transform:uppercase"></div><div class="lfeedback" id="lwFb"></div>`;async function playLW(){await ensureLA();const u=1200/14;for(const ch of word){const code=MORSE[ch];for(let j=0;j<code.length;j++){const sym=code[j],dur=(sym==='.'?1:3)*u;await lBeep(680,dur/1000);if(j<code.length-1)await sleep(u);}await sleep(u*3);}}document.getElementById('lwPlay').addEventListener('click',playLW);const inp=document.getElementById('lwInput');inp.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');});inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLWord();});function checkLWord(){const val=inp.value.toUpperCase();if(!val)return;const ok=val===word;document.getElementById('lwWrap').classList.add(ok?'correct':'wrong');inp.disabled=true;const fb=document.getElementById('lwFb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ Correct! ${word} = <span class="answer-rev">${mw}</span>`:`✗ Answer: <span class="answer-rev">${word}</span>`;$('lnextBtn').disabled=false;}setTimeout(()=>{inp.focus();playLW();},300);}
-  function renderLComplete(){const lesson=LESSONS[curL];$('lstage').innerHTML=`<div class="complete-screen"><div class="complete-icon">🎉</div><div class="complete-title">Lesson Complete!</div><div class="complete-sub">You've learned: ${lesson.letters.join(', ')}. Keep going!</div><div class="complete-stats"><div class="complete-stat"><div class="complete-stat-l">New letters</div><div class="complete-stat-v">${lesson.letters.length}</div></div><div class="complete-stat"><div class="complete-stat-l">Total known</div><div class="complete-stat-v">${knownL.length}</div></div></div></div>`;$('lnextBtn').disabled=false;if(curL<LESSONS.length-1){$('lnextBtn').textContent='Next Lesson →';$('lnextBtn').className='lbtn lbtn-next';}else{$('lnextBtn').textContent='🏆 All Done!';$('lnextBtn').className='lbtn lbtn-next';}}
+  function renderLS(){const step=steps[curS],stage=$('lstage');stage.className='lstage swap-out';setTimeout(()=>{stage.className='lstage';$('stepTag').textContent='LESSON';$('phaseTag').textContent=step.type.toUpperCase();$('lnextBtn').disabled=true;$('lbackBtn').style.visibility=curS>0?'visible':'hidden';if(curS>0)$('lbackBtn').textContent=t('learn_back');$('lnextBtn').textContent=t('learn_continue');$('lnextBtn').className='lbtn lbtn-primary';switch(step.type){case 'intro':renderLIntro();break;case 'flashcard':renderLFlashcard(step.letter);break;case 'recognition':renderLRecog(step.letter);break;case 'recall':renderLRecall(step.letter);break;case 'word':renderLWord(step.letters);break;case 'complete':renderLComplete();break;}},250);}
+  function renderLIntro(){const lesson=LESSONS[curL];$('lstage').innerHTML=`<div class="lesson-intro"><div class="lesson-intro-num">${t('lesson_label')} ${lesson.num}</div><div class="lesson-intro-title">${lesson.name}</div><div class="lesson-intro-sub">${lesson.sub}</div><div class="lesson-new-letters">${lesson.letters.map(l=>`<div class="lesson-letter-chip">${l}<small>${fmt(MORSE[l])}</small></div>`).join('')}</div></div>`;$('lnextBtn').disabled=false;}
+  function renderLFlashcard(letter){const code=MORSE[letter];const dots=code.split('').map(s=>`<div class="fc-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="intro-title">${t('learn_tap')}</div><div class="flashcard" id="lfc"><div class="flashcard-inner"><div class="fc-face front"><div class="fc-letter">${letter}</div><div class="fc-hint">${t('learn_tap_flip')}</div></div><div class="fc-face back"><div class="fc-morse-symbols">${dots}</div><div class="fc-code">${fmt(code)}</div><div class="fc-letter-back">${letter}</div></div></div></div><button class="q-play" id="lPlayBtn"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>${t('learn_play')}</button>`;const fc=document.getElementById('lfc');fc.addEventListener('click',()=>{fc.classList.toggle('flipped');if(fc.classList.contains('flipped')){$('lnextBtn').disabled=false;lPlayCode(code);}});document.getElementById('lPlayBtn').addEventListener('click',()=>lPlayCode(code));}
+  function renderLRecog(letter){const code=MORSE[letter];const pool=[...LESSONS[curL].letters,...LESSONS.slice(0,curL).flatMap(l=>l.letters)].filter((v,i,a)=>a.indexOf(v)===i);let opts=[letter];while(opts.length<4&&opts.length<pool.length){const r=pool[Math.floor(Math.random()*pool.length)];if(!opts.includes(r))opts.push(r);}while(opts.length<4)opts.push(['A','E','T','I','N','S','M'].find(x=>!opts.includes(x))||'?');opts=opts.sort(()=>Math.random()-0.5);const dots=code.split('').map(s=>`<div class="q-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="q-stage-label">${t('learn_what_letter')}</div><div class="q-morse-display">${dots}</div><button class="q-play" id="lqPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>${t('learn_play')}</button><div class="options">${opts.map(o=>`<button class="opt" data-opt="${o}">${o}</button>`).join('')}</div><div class="lfeedback" id="lfb"></div>`;document.getElementById('lqPlay').addEventListener('click',()=>lPlayCode(code));document.querySelectorAll('.opt').forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled)return;const ok=btn.dataset.opt===letter;document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.opt===letter)b.classList.add('correct');else if(b===btn&&!ok)b.classList.add('wrong');});const fb=document.getElementById('lfb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ ${t('fb_correct_label_learn')} ${letter} = <span class="answer-rev">${fmt(code)}</span>`:`✗ ${t('learn_answer_label')}: ${letter} = <span class="answer-rev">${fmt(code)}</span>`;$('lnextBtn').disabled=false;if(ok)lPlayCode(code);}));setTimeout(()=>lPlayCode(code),300);}
+  function renderLRecall(letter){const code=MORSE[letter];const dots=code.split('').map(s=>`<div class="q-sym ${s==='.'?'dot':'dash'}"></div>`).join('');$('lstage').innerHTML=`<div class="q-stage-label">${t('learn_type_letter')}</div><div class="q-morse-display">${dots}</div><button class="q-play" id="lrPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>Play</button><div class="recall-input-wrap" id="lrWrap"><div class="recall-label">${t('learn_your_answer')}</div><input class="recall-input" id="lrInput" maxlength="1" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="text"></div><div class="lfeedback" id="lrFb"></div>`;document.getElementById('lrPlay').addEventListener('click',()=>lPlayCode(code));const inp=document.getElementById('lrInput');inp.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,1);});inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLRecall();});function checkLRecall(){const val=inp.value.toUpperCase();if(!val)return;const ok=val===letter;document.getElementById('lrWrap').classList.add(ok?'correct':'wrong');inp.disabled=true;const fb=document.getElementById('lrFb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ ${t('learn_correct_short')}`:`✗ ${t('learn_answer_label')}: <span class="answer-rev">${letter}</span>`;$('lnextBtn').disabled=false;if(!knownL.includes(letter)&&ok)knownL.push(letter);}setTimeout(()=>{inp.focus();lPlayCode(code);},300);}
+  function renderLWord(letters){const word=letters.slice(0,2).join('');const mw=word.split('').map(l=>fmt(MORSE[l])).join('  ');$('lstage').innerHTML=`<div class="q-stage-label">${t('learn_type_word')}</div><button class="q-play" id="lwPlay"><span class="q-play-icon"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg></span>${t('learn_play_word')}</button><div class="word-input-wrap" id="lwWrap"><input class="word-input" id="lwInput" maxlength="${word.length}" autocomplete="off" autocorrect="off" spellcheck="false" style="text-transform:uppercase"></div><div class="lfeedback" id="lwFb"></div>`;async function playLW(){await ensureLA();const u=1200/14;for(const ch of word){const code=MORSE[ch];for(let j=0;j<code.length;j++){const sym=code[j],dur=(sym==='.'?1:3)*u;await lBeep(680,dur/1000);if(j<code.length-1)await sleep(u);}await sleep(u*3);}}document.getElementById('lwPlay').addEventListener('click',playLW);const inp=document.getElementById('lwInput');inp.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z]/g,'');});inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLWord();});function checkLWord(){const val=inp.value.toUpperCase();if(!val)return;const ok=val===word;document.getElementById('lwWrap').classList.add(ok?'correct':'wrong');inp.disabled=true;const fb=document.getElementById('lwFb');fb.className='lfeedback show '+(ok?'correct':'wrong');fb.innerHTML=ok?`✓ ${t('learn_correct_short')} ${word} = <span class="answer-rev">${mw}</span>`:`✗ ${t('learn_answer_label')}: <span class="answer-rev">${word}</span>`;$('lnextBtn').disabled=false;}setTimeout(()=>{inp.focus();playLW();},300);}
+  function renderLComplete(){const lesson=LESSONS[curL];$('lstage').innerHTML=`<div class="complete-screen"><div class="complete-icon">🎉</div><div class="complete-title">${t('learn_complete_title')}</div><div class="complete-sub">${t('learn_complete_sub',{letters:lesson.letters.join(', ')})}</div><div class="complete-stats"><div class="complete-stat"><div class="complete-stat-l">${t('learn_new_letters')}</div><div class="complete-stat-v">${lesson.letters.length}</div></div><div class="complete-stat"><div class="complete-stat-l">${t('learn_total_known')}</div><div class="complete-stat-v">${knownL.length}</div></div></div></div>`;$('lnextBtn').disabled=false;if(curL<LESSONS.length-1){$('lnextBtn').textContent=t('learn_next_lesson');$('lnextBtn').className='lbtn lbtn-next';}else{$('lnextBtn').textContent=t('learn_all_done');$('lnextBtn').className='lbtn lbtn-next';}}
   async function lPlayCode(code){if(isLP){lStop=true;await sleep(80);return;}await ensureLA();isLP=true;lStop=false;const u=1200/14;for(let i=0;i<code.length;i++){if(lStop)break;const sym=code[i],dur=(sym==='.'?1:3)*u;await lBeep(700,dur/1000);if(!lStop&&i<code.length-1)await sleep(u);}isLP=false;}
   $('lnextBtn').addEventListener('click',()=>{if(steps[curS].type==='complete'){if(curL<LESSONS.length-1)startLesson(curL+1);return;}curS++;if(curS>=steps.length)curS=steps.length-1;renderLS();});
   $('lbackBtn').addEventListener('click',()=>{if(curS>0){curS--;renderLS();}});
